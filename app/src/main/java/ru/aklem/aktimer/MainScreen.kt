@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -36,7 +37,7 @@ fun MainScreen(
 @Composable
 fun BottomBar(navController: NavHostController) {
     val screens = listOf(
-        BottomBarScreen.Home,
+        BottomBarScreen.Timer,
         BottomBarScreen.Saved,
         BottomBarScreen.Create
     )
@@ -66,7 +67,7 @@ fun RowScope.AddItem(
         },
         icon = {
             Icon(
-                imageVector = screen.icon,
+                painter = painterResource(id = screen.icon),
                 contentDescription = "Navigation Icon"
             )
         },

@@ -1,29 +1,23 @@
 package ru.aklem.aktimer
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Create
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.ui.graphics.vector.ImageVector
-
 sealed class BottomBarScreen(
     val route: String,
     val title: String,
-    val icon: ImageVector
+    val icon: Int
 ) {
-    object Home: BottomBarScreen(
-        route = "home",
-        title = "Home",
-        icon = Icons.Default.Home
+    object Timer: BottomBarScreen(
+        route = "timer",
+        title = "Timer",
+        icon = R.drawable.ic_timer
     )
     object Saved: BottomBarScreen(
         route = "saved",
         title = "Saved",
-        icon = Icons.Default.Favorite
+        icon = R.drawable.ic_saved
     )
     object Create: BottomBarScreen(
         route = "create",
         title = "Create",
-        icon = Icons.Default.Create
+        icon = R.drawable.ic_create
     )
 }
