@@ -1,9 +1,9 @@
 package ru.aklem.aktimer.screens
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -14,6 +14,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -24,8 +25,7 @@ import ru.aklem.aktimer.viewmodel.TimerViewModel
 @ExperimentalAnimationApi
 @Composable
 fun TimerScreen(
-    onStart: (List<Int>) -> Unit,
-    onPause: () -> Unit,
+    onStartPause: (List<Int>) -> Unit,
     onStop: () -> Unit,
     startValue: List<Int>,
     timerValue: Int,
@@ -36,8 +36,7 @@ fun TimerScreen(
         contentAlignment = Alignment.Center
     ) {
         TimerText(
-            onStart = onStart,
-            onPause = onPause,
+            onStartPause = onStartPause,
             onStop = onStop,
             startValue = startValue,
             timerValue = timerValue,
@@ -52,8 +51,7 @@ fun TimerScreen(
 fun HomeScreenPreview() {
     AkTimerTheme {
         TimerScreen(
-            onStart = TimerViewModel()::start,
-            onPause = TimerViewModel()::pause,
+            onStartPause = TimerViewModel()::toggleStartPause,
             onStop = TimerViewModel()::stop,
             startValue = listOf(10, 20),
             timerValue = 100,
@@ -65,8 +63,7 @@ fun HomeScreenPreview() {
 @ExperimentalAnimationApi
 @Composable
 fun TimerText(
-    onStart: (List<Int>) -> Unit,
-    onPause: () -> Unit,
+    onStartPause: (List<Int>) -> Unit,
     onStop: () -> Unit,
     startValue: List<Int>,
     timerValue: Int,
@@ -82,37 +79,26 @@ fun TimerText(
             style = MaterialTheme.typography.h2,
         )
         Row {
-            AnimatedVisibility(visible = !running, enter = fadeIn(), exit = fadeOut()) {
-                Card(
-                    modifier = Modifier
-                        .size(48.dp)
-                        .padding(4.dp)
-                        .clickable(onClick = { onStart(startValue) }),
-                    shape = CircleShape,
-                    elevation = 4.dp,
-                    backgroundColor = MaterialTheme.colors.primary
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_play),
-                        contentDescription = "Play Button"
-                    )
-                }
-            }
-            AnimatedVisibility(visible = running, enter = fadeIn(), exit = fadeOut()) {
-                Card(
-                    modifier = Modifier
-                        .size(48.dp)
-                        .padding(4.dp)
-                        .clickable(onClick = { onPause() }),
-                    shape = CircleShape,
-                    elevation = 4.dp,
-                    backgroundColor = MaterialTheme.colors.primary
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_pause),
-                        contentDescription = "Pause Button"
-                    )
-                }
+            val rotation = animateFloatAsState(
+                targetValue = if (running) 180f else 0f,
+                animationSpec = tween(durationMillis = 400, easing = FastOutSlowInEasing)
+            )
+            Card(
+                modifier = Modifier
+                    .size(64.dp)
+                    .padding(4.dp)
+                    .graphicsLayer { rotationY = rotation.value }
+                    .clickable(onClick = { onStartPause(startValue) }),
+                shape = CircleShape,
+                elevation = 4.dp,
+                backgroundColor = MaterialTheme.colors.primary
+            ) {
+                Image(
+                    painter = painterResource(
+                        id = if (rotation.value <= 90) R.drawable.ic_play else R.drawable.ic_pause
+                    ),
+                    contentDescription = "Play Button"
+                )
             }
             Spacer(modifier = Modifier.padding(8.dp))
             Card(

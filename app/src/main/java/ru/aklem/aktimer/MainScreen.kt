@@ -16,8 +16,7 @@ import androidx.navigation.compose.rememberNavController
 @ExperimentalAnimationApi
 @Composable
 fun MainScreen(
-    onStart: (List<Int>) -> Unit,
-    onPause: () -> Unit,
+    onStartPause: (List<Int>) -> Unit,
     onStop: () -> Unit,
     startValue: List<Int>,
     timerValue: Int,
@@ -29,8 +28,7 @@ fun MainScreen(
     ) {
         BottomNavGraph(
             navController = navController,
-            onStart = onStart,
-            onPause = onPause,
+            onStartPause = onStartPause,
             onStop = onStop,
             startValue = startValue,
             timerValue = timerValue,

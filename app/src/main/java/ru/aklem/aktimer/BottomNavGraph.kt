@@ -13,8 +13,7 @@ import ru.aklem.aktimer.screens.TimerScreen
 @Composable
 fun BottomNavGraph(
     navController: NavHostController,
-    onStart: (List<Int>) -> Unit,
-    onPause: () -> Unit,
+    onStartPause: (List<Int>) -> Unit,
     onStop: () -> Unit,
     startValue: List<Int>,
     timerValue: Int,
@@ -26,8 +25,7 @@ fun BottomNavGraph(
     ) {
         composable(route = BottomBarScreen.Timer.route) {
             TimerScreen(
-                onStart = onStart,
-                onPause = onPause,
+                onStartPause = onStartPause,
                 onStop = onStop,
                 startValue = startValue,
                 timerValue = timerValue,

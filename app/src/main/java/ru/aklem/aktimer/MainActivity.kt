@@ -24,8 +24,7 @@ class MainActivity : ComponentActivity() {
                 // A surface container using the 'background' color from the theme
                 Surface(color = MaterialTheme.colors.background) {
                     MainScreen(
-                        onStart = viewModel::start,
-                        onPause = viewModel::pause,
+                        onStartPause = viewModel::toggleStartPause,
                         onStop = viewModel::stop,
                         startValue = startValue,
                         timerValue = timerValue,

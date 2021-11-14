@@ -19,7 +19,7 @@ class TimerViewModel : ViewModel() {
 
     private var index = 0
 
-    fun start(periods: List<Int>) {
+    fun toggleStartPause(periods: List<Int>) {
         val amountOfPeriods = periods.size - 1
         if (!_isRunning.value && amountOfPeriods > 0) {
             _isRunning.value = true
@@ -43,6 +43,9 @@ class TimerViewModel : ViewModel() {
                     Log.d(TAG, "_timerValue = ${_timerValue.value}")
                 }
             }
+        } else {
+            job?.cancel()
+            _isRunning.value = false
         }
     }
 
