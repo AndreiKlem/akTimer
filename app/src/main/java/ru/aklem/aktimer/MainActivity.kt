@@ -20,10 +20,14 @@ class MainActivity : ComponentActivity() {
                 val viewModel by viewModels<TimerViewModel>()
                 val timerValue = viewModel.timerValue.collectAsState().value
                 val isRunning = viewModel.isRunning.collectAsState().value
+                val startValue = listOf(5, 3)
                 // A surface container using the 'background' color from the theme
                 Surface(color = MaterialTheme.colors.background) {
                     MainScreen(
-                        viewModel = viewModel,
+                        onStart = viewModel::start,
+                        onPause = viewModel::pause,
+                        onStop = viewModel::stop,
+                        startValue = startValue,
                         timerValue = timerValue,
                         isRunning = isRunning
                     )

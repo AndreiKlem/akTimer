@@ -24,7 +24,10 @@ import ru.aklem.aktimer.viewmodel.TimerViewModel
 @ExperimentalAnimationApi
 @Composable
 fun TimerScreen(
-    viewModel: TimerViewModel,
+    onStart: (List<Int>) -> Unit,
+    onPause: () -> Unit,
+    onStop: () -> Unit,
+    startValue: List<Int>,
     timerValue: Int,
     isRunning: Boolean
 ) {
@@ -32,7 +35,14 @@ fun TimerScreen(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        TimerText(viewModel, timerValue, isRunning)
+        TimerText(
+            onStart = onStart,
+            onPause = onPause,
+            onStop = onStop,
+            startValue = startValue,
+            timerValue = timerValue,
+            running = isRunning
+        )
     }
 }
 
@@ -41,21 +51,34 @@ fun TimerScreen(
 @Preview
 fun HomeScreenPreview() {
     AkTimerTheme {
-        TimerScreen(viewModel = TimerViewModel(), timerValue = 100, isRunning = false)
+        TimerScreen(
+            onStart = TimerViewModel()::start,
+            onPause = TimerViewModel()::pause,
+            onStop = TimerViewModel()::stop,
+            startValue = listOf(10, 20),
+            timerValue = 100,
+            isRunning = false
+        )
     }
 }
 
 @ExperimentalAnimationApi
 @Composable
-fun TimerText(viewModel: TimerViewModel, duration: Int, running: Boolean) {
-    val initialTimerDuration = 63
+fun TimerText(
+    onStart: (List<Int>) -> Unit,
+    onPause: () -> Unit,
+    onStop: () -> Unit,
+    startValue: List<Int>,
+    timerValue: Int,
+    running: Boolean
+) {
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = getTimerText(duration),
+            text = getTimerText(timerValue),
             style = MaterialTheme.typography.h2,
         )
         Row {
@@ -64,7 +87,7 @@ fun TimerText(viewModel: TimerViewModel, duration: Int, running: Boolean) {
                     modifier = Modifier
                         .size(48.dp)
                         .padding(4.dp)
-                        .clickable(onClick = { viewModel.start(initialTimerDuration) }),
+                        .clickable(onClick = { onStart(startValue) }),
                     shape = CircleShape,
                     elevation = 4.dp,
                     backgroundColor = MaterialTheme.colors.primary
@@ -80,7 +103,7 @@ fun TimerText(viewModel: TimerViewModel, duration: Int, running: Boolean) {
                     modifier = Modifier
                         .size(48.dp)
                         .padding(4.dp)
-                        .clickable(onClick = { viewModel.pause() }),
+                        .clickable(onClick = { onPause() }),
                     shape = CircleShape,
                     elevation = 4.dp,
                     backgroundColor = MaterialTheme.colors.primary
@@ -96,7 +119,7 @@ fun TimerText(viewModel: TimerViewModel, duration: Int, running: Boolean) {
                 modifier = Modifier
                     .size(48.dp)
                     .padding(4.dp)
-                    .clickable(onClick = { viewModel.stop() }),
+                    .clickable(onClick = { onStop() }),
                 shape = CircleShape,
                 elevation = 4.dp,
                 backgroundColor = MaterialTheme.colors.primary

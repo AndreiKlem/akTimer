@@ -12,12 +12,14 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import ru.aklem.aktimer.viewmodel.TimerViewModel
 
 @ExperimentalAnimationApi
 @Composable
 fun MainScreen(
-    viewModel: TimerViewModel,
+    onStart: (List<Int>) -> Unit,
+    onPause: () -> Unit,
+    onStop: () -> Unit,
+    startValue: List<Int>,
     timerValue: Int,
     isRunning: Boolean
 ) {
@@ -27,7 +29,10 @@ fun MainScreen(
     ) {
         BottomNavGraph(
             navController = navController,
-            viewModel = viewModel,
+            onStart = onStart,
+            onPause = onPause,
+            onStop = onStop,
+            startValue = startValue,
             timerValue = timerValue,
             isRunning = isRunning
         )

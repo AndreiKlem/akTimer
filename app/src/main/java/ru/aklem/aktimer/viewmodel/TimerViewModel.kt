@@ -17,17 +17,26 @@ class TimerViewModel : ViewModel() {
     private var _isRunning = MutableStateFlow(false)
     val isRunning = _isRunning.asStateFlow()
 
-    fun start(counter: Int) {
-        if (!_isRunning.value) {
+    private var index = 0
+
+    fun start(periods: List<Int>) {
+        val amountOfPeriods = periods.size - 1
+        if (!_isRunning.value && amountOfPeriods > 0) {
             _isRunning.value = true
-            if (_timerValue.value == 0) _timerValue.value = counter
+            if (_timerValue.value == 0 && index == 0) _timerValue.value = periods[index]
             job?.cancel()
             job = viewModelScope.launch(Dispatchers.Default) {
                 while (isActive) {
                     if (_timerValue.value <= 0) {
-                        job?.cancel()
-                        _isRunning.value = false
-                        Log.d(TAG, "Job cancelling...")
+                        if (index == amountOfPeriods) {
+                            job?.cancel()
+                            index = 0
+                            _isRunning.value = false
+                            Log.d(TAG, "Job cancelling...")
+                        } else {
+                            index += 1
+                            _timerValue.value = periods[index]
+                        }
                     }
                     delay(1000L)
                     _timerValue.value -= 1
@@ -37,8 +46,10 @@ class TimerViewModel : ViewModel() {
         }
     }
 
+
     fun stop() {
         job?.cancel()
+        index = 0
         _timerValue.value = 0
         if (_isRunning.value) _isRunning.value = false
     }
