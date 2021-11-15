@@ -49,18 +49,10 @@ class TimerViewModel : ViewModel() {
         }
     }
 
-
     fun stop() {
         job?.cancel()
         index = 0
         _timerValue.value = 0
         if (_isRunning.value) _isRunning.value = false
-    }
-
-    fun pause() {
-        if (_isRunning.value) {
-            job?.cancel()
-            _isRunning.value = false
-        }
     }
 }
