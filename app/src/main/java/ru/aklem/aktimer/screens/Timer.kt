@@ -125,6 +125,6 @@ private fun getTimerText(duration: Int): String {
     return "${formattedNumber(min)} : ${formattedNumber(sec)}"
 }
 
-private fun formattedNumber(number: Int): String {
+fun formattedNumber(number: Int): String {
     return number.toString().padStart(2, '0')
 }

@@ -1,7 +1,7 @@
 package ru.aklem.aktimer
 
 class Chart(
-    val prepare: Int,
+    var prepare: Int,
     val work: Int,
     val rest: Int,
     val repeat: Int

@@ -5,13 +5,17 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ru.aklem.aktimer.R
@@ -31,6 +35,9 @@ fun CreateScreen() {
 @ExperimentalAnimationApi
 @Composable
 fun PrepareCard() {
+    var prepareMinutes by rememberSaveable { mutableStateOf("") }
+    var prepareSeconds by rememberSaveable { mutableStateOf("") }
+    val maxChars = 2
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -44,26 +51,45 @@ fun PrepareCard() {
                 text = "Preparation",
                 style = MaterialTheme.typography.h5
             )
-            Row {
-                Text(
-                    text = "Min",
-                    style = MaterialTheme.typography.h5,
+            Row(
+                modifier = Modifier.padding(bottom = 4.dp)
+            ) {
+                OutlinedTextField(
                     modifier = Modifier
-                        .padding(start = 4.dp, end = 8.dp)
-                        .align(Alignment.CenterVertically)
+                        .padding(horizontal = 4.dp)
+                        .weight(weight = 1f, fill = false)
+                        .align(Alignment.CenterVertically),
+                    label = { Text(text = "Minutes") },
+                    placeholder = { Text(text = "max 59") },
+                    value = prepareMinutes,
+                    onValueChange = {
+                        if (it.isEmpty()) {
+                            prepareMinutes = ""
+                        } else if (it.length <= maxChars) {
+                            prepareMinutes = if (it.toInt() < 60) it else "59"
+                        }
+                    },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
-                Spinner(upTo = 5)
-                Spinner(upTo = 9)
-                Text(
-                    text = "Sec",
-                    style = MaterialTheme.typography.h5,
+                OutlinedTextField(
                     modifier = Modifier
-                        .padding(start = 8.dp, end = 8.dp)
-                        .align(Alignment.CenterVertically)
-
+                        .padding(horizontal = 4.dp)
+                        .weight(weight = 1f, fill = false)
+                        .align(Alignment.CenterVertically),
+                    label = { Text(text = "Seconds") },
+                    placeholder = { Text(text = "max 59") },
+                    value = prepareSeconds,
+                    onValueChange = {
+                        if (it.isEmpty()) {
+                            prepareSeconds = ""
+                        } else if (it.length <= maxChars) {
+                            prepareSeconds = if (it.toInt() < 60) it else "59"
+                        }
+                    },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
-                Spinner(upTo = 5)
-                Spinner(upTo = 9)
             }
         }
     }
