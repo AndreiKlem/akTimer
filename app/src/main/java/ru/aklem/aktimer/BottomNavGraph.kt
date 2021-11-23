@@ -36,7 +36,7 @@ fun BottomNavGraph(
             SavedScreen()
         }
         composable(route = BottomBarScreen.Create.route) {
-            CreateScreen()
+            CreateScreen(navController)
         }
     }
 }

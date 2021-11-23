@@ -6,93 +6,173 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.Card
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import ru.aklem.aktimer.R
-import ru.aklem.aktimer.ui.theme.AkTimerTheme
+import ru.aklem.aktimer.ui.theme.setsBackground
 
 @ExperimentalAnimationApi
 @Composable
-fun CreateScreen() {
-    Box(
+fun CreateScreen(navController: NavController) {
+    Column(
         modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.TopCenter
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        var title by rememberSaveable { mutableStateOf("") }
+        OutlinedTextField(
+            modifier = Modifier.padding(8.dp).align(Alignment.CenterHorizontally),
+            value = title,
+            onValueChange = { if (it.length < 40) title = it },
+            placeholder = { Text(text = "Title") },
+            textStyle = TextStyle(fontSize = 20.sp),
+            singleLine = true
+        )
         PrepareCard()
+        ActionCard()
+        RestCard()
+        RepeatCard()
+        Button(
+            onClick = { navController.navigate("timer") },
+            modifier = Modifier
+                .align(Alignment.End)
+                .padding(8.dp)
+        ) {
+            Text(text = "Create Timer")
+        }
     }
 }
 
 @ExperimentalAnimationApi
 @Composable
 fun PrepareCard() {
-    var prepareMinutes by rememberSaveable { mutableStateOf("") }
-    var prepareSeconds by rememberSaveable { mutableStateOf("") }
-    val maxChars = 2
+    CardTemplate(header = "Preparation")
+}
+
+@Composable
+fun ActionCard() {
+    val topShape = RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp)
+    CardTemplate(header = "Action", cornersShape = topShape, cardBackground = setsBackground)
+}
+
+@Composable
+fun RestCard() {
+    val middleShape = RoundedCornerShape(0.dp)
+    CardTemplate(header = "Rest", cornersShape = middleShape, cardBackground = setsBackground)
+}
+
+@Composable
+fun RepeatCard() {
+    var sets by rememberSaveable { mutableStateOf("1") }
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp),
         elevation = 4.dp,
-        shape = RoundedCornerShape(8.dp)
+        shape = RoundedCornerShape(bottomStart = 8.dp, bottomEnd = 8.dp),
+        backgroundColor = setsBackground
+    ) {
+        Row(
+            modifier = Modifier.padding(4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Text(text = "Repeat", fontSize = 20.sp)
+            TextField(
+                modifier = Modifier
+                    .padding(start = 4.dp, end = 4.dp)
+                    .width(60.dp),
+                value = sets,
+                onValueChange = {
+                    sets = when {
+                        it.isEmpty() -> ""
+                        it.toIntOrNull() == null -> ""
+                        it.toInt() in 1..99 -> it
+                        it.toInt() > 99 -> "99"
+                        else -> "1"
+                    }
+                },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                textStyle = TextStyle(fontSize = 20.sp)
+            )
+            Text(text = if (sets == "1") "time" else "times", fontSize = 20.sp)
+        }
+    }
+}
+
+@Composable
+fun CardTemplate(
+    header: String,
+    cornersShape: RoundedCornerShape = RoundedCornerShape(8.dp),
+    cardBackground: Color = MaterialTheme.colors.background
+) {
+    var soundOn by remember { mutableStateOf(true) }
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        elevation = 4.dp,
+        shape = cornersShape,
+        backgroundColor = cardBackground
     ) {
         Column(modifier = Modifier.padding(4.dp)) {
             Text(
                 modifier = Modifier.align(Alignment.CenterHorizontally),
-                text = "Preparation",
-                style = MaterialTheme.typography.h5
+                text = header,
+                fontSize = 20.sp
             )
             Row(
                 modifier = Modifier.padding(bottom = 4.dp)
             ) {
-                OutlinedTextField(
+                TimeInput(label = "Minutes", modifier = Modifier.weight(0.45f))
+                TimeInput(label = "Seconds", modifier = Modifier.weight(0.45f))
+                Image(
                     modifier = Modifier
                         .padding(horizontal = 4.dp)
-                        .weight(weight = 1f, fill = false)
-                        .align(Alignment.CenterVertically),
-                    label = { Text(text = "Minutes") },
-                    placeholder = { Text(text = "max 59") },
-                    value = prepareMinutes,
-                    onValueChange = {
-                        if (it.isEmpty()) {
-                            prepareMinutes = ""
-                        } else if (it.length <= maxChars) {
-                            prepareMinutes = if (it.toInt() < 60) it else "59"
-                        }
-                    },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-                )
-                OutlinedTextField(
-                    modifier = Modifier
-                        .padding(horizontal = 4.dp)
-                        .weight(weight = 1f, fill = false)
-                        .align(Alignment.CenterVertically),
-                    label = { Text(text = "Seconds") },
-                    placeholder = { Text(text = "max 59") },
-                    value = prepareSeconds,
-                    onValueChange = {
-                        if (it.isEmpty()) {
-                            prepareSeconds = ""
-                        } else if (it.length <= maxChars) {
-                            prepareSeconds = if (it.toInt() < 60) it else "59"
-                        }
-                    },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                        .weight(0.1f)
+                        .align(alignment = Alignment.CenterVertically)
+                        .clickable(onClick = { soundOn = !soundOn }),
+                    painter = painterResource(id = if (soundOn) R.drawable.ic_sound else R.drawable.ic_sound_off),
+                    colorFilter = ColorFilter.tint(color = Color.Black),
+                    contentDescription = "Play sound when time expires"
                 )
             }
         }
     }
+}
+
+@Composable
+fun TimeInput(label: String, modifier: Modifier) {
+    var timeValue by rememberSaveable { mutableStateOf("0") }
+    OutlinedTextField(
+        modifier = modifier.padding(horizontal = 4.dp),
+        label = { Text(text = label) },
+        placeholder = { Text(text = "max 59") },
+        value = timeValue,
+        onValueChange = {
+            timeValue = when {
+                it.isEmpty() -> ""
+                it.toIntOrNull() == null -> ""
+                it.toInt() in 1..59 -> it
+                it.toInt() > 59 -> "59"
+                else -> "0"
+            }
+        },
+        singleLine = true,
+        textStyle = TextStyle(fontSize = 20.sp),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+    )
 }
 
 @ExperimentalAnimationApi
@@ -133,20 +213,4 @@ fun Spinner(upTo: Int) {
             contentDescription = "Decrease"
         )
     }
-}
-
-@ExperimentalAnimationApi
-@Composable
-@Preview
-fun CreateScreenPreview() {
-    AkTimerTheme {
-        CreateScreen()
-    }
-}
-
-@ExperimentalAnimationApi
-@Composable
-@Preview
-fun PrepareCardPreview() {
-    PrepareCard()
 }
