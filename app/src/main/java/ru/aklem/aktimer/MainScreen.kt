@@ -12,12 +12,14 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import ru.aklem.aktimer.viewmodel.ChartViewModel
 
 @ExperimentalAnimationApi
 @Composable
 fun MainScreen(
     onStartPause: (List<Int>) -> Unit,
     onStop: () -> Unit,
+    chartViewModel: ChartViewModel,
     startValue: List<Int>,
     timerValue: Int,
     isRunning: Boolean
@@ -30,6 +32,7 @@ fun MainScreen(
             navController = navController,
             onStartPause = onStartPause,
             onStop = onStop,
+            chartViewModel = chartViewModel,
             startValue = startValue,
             timerValue = timerValue,
             isRunning = isRunning

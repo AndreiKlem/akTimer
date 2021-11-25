@@ -19,17 +19,20 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import ru.aklem.aktimer.Chart
 import ru.aklem.aktimer.R
 import ru.aklem.aktimer.ui.theme.setsBackground
+import ru.aklem.aktimer.viewmodel.ChartViewModel
 
 @ExperimentalAnimationApi
 @Composable
-fun CreateScreen(navController: NavController) {
+fun CreateScreen(navController: NavController, chartViewModel: ChartViewModel) {
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        var title by rememberSaveable { mutableStateOf("") }
+        val chart = Chart()
+        var title by remember { mutableStateOf(chart.title) }
         OutlinedTextField(
             modifier = Modifier.padding(8.dp).align(Alignment.CenterHorizontally),
             value = title,
@@ -38,7 +41,7 @@ fun CreateScreen(navController: NavController) {
             textStyle = TextStyle(fontSize = 20.sp),
             singleLine = true
         )
-        PrepareCard()
+        PrepareCard(header = chart.headerPrepare)
         ActionCard()
         RestCard()
         RepeatCard()
@@ -55,8 +58,8 @@ fun CreateScreen(navController: NavController) {
 
 @ExperimentalAnimationApi
 @Composable
-fun PrepareCard() {
-    CardTemplate(header = "Preparation")
+fun PrepareCard(header: String) {
+    CardTemplate(header = header)
 }
 
 @Composable
@@ -113,10 +116,11 @@ fun RepeatCard() {
 
 @Composable
 fun CardTemplate(
-    header: String,
+    chart: Chart,
     cornersShape: RoundedCornerShape = RoundedCornerShape(8.dp),
     cardBackground: Color = MaterialTheme.colors.background
 ) {
+    var
     var soundOn by remember { mutableStateOf(true) }
     Card(
         modifier = Modifier

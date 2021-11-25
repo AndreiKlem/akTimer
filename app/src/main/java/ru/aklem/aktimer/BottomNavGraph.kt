@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import ru.aklem.aktimer.screens.CreateScreen
 import ru.aklem.aktimer.screens.SavedScreen
 import ru.aklem.aktimer.screens.TimerScreen
+import ru.aklem.aktimer.viewmodel.ChartViewModel
 
 @ExperimentalAnimationApi
 @Composable
@@ -15,6 +16,7 @@ fun BottomNavGraph(
     navController: NavHostController,
     onStartPause: (List<Int>) -> Unit,
     onStop: () -> Unit,
+    chartViewModel: ChartViewModel,
     startValue: List<Int>,
     timerValue: Int,
     isRunning: Boolean
@@ -36,7 +38,10 @@ fun BottomNavGraph(
             SavedScreen()
         }
         composable(route = BottomBarScreen.Create.route) {
-            CreateScreen(navController)
+            CreateScreen(
+                navController = navController,
+                chartViewModel = chartViewModel
+            )
         }
     }
 }
