@@ -4,8 +4,11 @@ import androidx.compose.animation.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -14,39 +17,52 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import ru.aklem.aktimer.Chart
 import ru.aklem.aktimer.R
 import ru.aklem.aktimer.ui.theme.setsBackground
-import ru.aklem.aktimer.viewmodel.ChartViewModel
 
 @ExperimentalAnimationApi
 @Composable
-fun CreateScreen(navController: NavController, chartViewModel: ChartViewModel) {
+fun CreateScreen(
+    navController: NavController,
+    title: String,
+    onTitleChange: (String) -> Unit,
+    headerPrepare: String,
+    onHeaderPrepareChange: (String) -> Unit,
+    headerAction: String,
+    onHeaderActionChange: (String) -> Unit,
+    headerRest: String,
+    onHeaderRestChange: (String) -> Unit
+) {
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(state = rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        val chart = Chart()
-        var title by remember { mutableStateOf(chart.title) }
         OutlinedTextField(
-            modifier = Modifier.padding(8.dp).align(Alignment.CenterHorizontally),
+            modifier = Modifier
+                .padding(8.dp)
+                .align(Alignment.CenterHorizontally),
+            placeholder = { Text(text = "Please enter a title") },
             value = title,
-            onValueChange = { if (it.length < 40) title = it },
-            placeholder = { Text(text = "Title") },
-            textStyle = TextStyle(fontSize = 20.sp),
+            onValueChange = { if (it.length < 40) onTitleChange(it) },
+            textStyle = TextStyle(fontSize = 18.sp),
             singleLine = true
         )
-        PrepareCard(header = chart.headerPrepare)
-        ActionCard()
-        RestCard()
+        PrepareCard(headerPrepare, onHeaderPrepareChange)
+        ActionCard(headerAction, onHeaderActionChange)
+        RestCard(headerRest, onHeaderRestChange)
         RepeatCard()
         Button(
-            onClick = { navController.navigate("timer") },
+            onClick = {
+                navController.navigate("timer")
+            },
             modifier = Modifier
                 .align(Alignment.End)
                 .padding(8.dp)
@@ -56,22 +72,34 @@ fun CreateScreen(navController: NavController, chartViewModel: ChartViewModel) {
     }
 }
 
-@ExperimentalAnimationApi
 @Composable
-fun PrepareCard(header: String) {
-    CardTemplate(header = header)
+fun PrepareCard(headerPrepare: String, onHeaderPrepareChange: (String) -> Unit) {
+    CardTemplate(
+        header = headerPrepare,
+        onHeaderChange = onHeaderPrepareChange
+    )
 }
 
 @Composable
-fun ActionCard() {
-    val topShape = RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp)
-    CardTemplate(header = "Action", cornersShape = topShape, cardBackground = setsBackground)
+fun ActionCard(headerAction: String, onHeaderActionChange: (String) -> Unit) {
+    val topShape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp)
+    CardTemplate(
+        header = headerAction,
+        onHeaderChange = onHeaderActionChange,
+        cornersShape = topShape,
+        cardBackground = setsBackground
+    )
 }
 
 @Composable
-fun RestCard() {
+fun RestCard(headerRest: String, onHeaderRestChange: (String) -> Unit) {
     val middleShape = RoundedCornerShape(0.dp)
-    CardTemplate(header = "Rest", cornersShape = middleShape, cardBackground = setsBackground)
+    CardTemplate(
+        header = headerRest,
+        onHeaderChange = onHeaderRestChange,
+        cornersShape = middleShape,
+        cardBackground = setsBackground
+    )
 }
 
 @Composable
@@ -80,9 +108,9 @@ fun RepeatCard() {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp),
+            .padding(start = 8.dp, end = 8.dp, top = 4.dp),
         elevation = 4.dp,
-        shape = RoundedCornerShape(bottomStart = 8.dp, bottomEnd = 8.dp),
+        shape = RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp),
         backgroundColor = setsBackground
     ) {
         Row(
@@ -90,7 +118,7 @@ fun RepeatCard() {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            Text(text = "Repeat", fontSize = 20.sp)
+            Text(text = "Repeat", fontSize = 18.sp)
             TextField(
                 modifier = Modifier
                     .padding(start = 4.dp, end = 4.dp)
@@ -107,7 +135,7 @@ fun RepeatCard() {
                 },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                textStyle = TextStyle(fontSize = 20.sp)
+                textStyle = TextStyle(fontSize = 18.sp)
             )
             Text(text = if (sets == "1") "time" else "times", fontSize = 20.sp)
         }
@@ -116,25 +144,28 @@ fun RepeatCard() {
 
 @Composable
 fun CardTemplate(
-    chart: Chart,
-    cornersShape: RoundedCornerShape = RoundedCornerShape(8.dp),
+    header: String,
+    onHeaderChange: (String) -> Unit,
+    cornersShape: RoundedCornerShape = RoundedCornerShape(12.dp),
     cardBackground: Color = MaterialTheme.colors.background
 ) {
-    var
     var soundOn by remember { mutableStateOf(true) }
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp),
+            .padding(horizontal = 8.dp, vertical = 4.dp),
         elevation = 4.dp,
         shape = cornersShape,
         backgroundColor = cardBackground
     ) {
         Column(modifier = Modifier.padding(4.dp)) {
-            Text(
+            OutlinedTextField(
                 modifier = Modifier.align(Alignment.CenterHorizontally),
-                text = header,
-                fontSize = 20.sp
+                placeholder = { Text(text = "Please enter a header") },
+                value = header,
+                onValueChange = { if (it.length < 40) onHeaderChange(it) },
+                textStyle = TextStyle(fontSize = 18.sp),
+                singleLine = true
             )
             Row(
                 modifier = Modifier.padding(bottom = 4.dp)
@@ -174,7 +205,7 @@ fun TimeInput(label: String, modifier: Modifier) {
             }
         },
         singleLine = true,
-        textStyle = TextStyle(fontSize = 20.sp),
+        textStyle = TextStyle(fontSize = 18.sp),
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
     )
 }

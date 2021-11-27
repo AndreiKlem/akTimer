@@ -40,7 +40,7 @@ fun TimerScreen(
             onStop = onStop,
             startValue = startValue,
             timerValue = timerValue,
-            running = isRunning
+            isRunning = isRunning
         )
     }
 }
@@ -60,14 +60,13 @@ fun HomeScreenPreview() {
     }
 }
 
-@ExperimentalAnimationApi
 @Composable
 fun TimerText(
     onStartPause: (List<Int>) -> Unit,
     onStop: () -> Unit,
     startValue: List<Int>,
     timerValue: Int,
-    running: Boolean
+    isRunning: Boolean
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -80,7 +79,7 @@ fun TimerText(
         )
         Row {
             val rotation = animateFloatAsState(
-                targetValue = if (running) 180f else 0f,
+                targetValue = if (isRunning) 180f else 0f,
                 animationSpec = tween(durationMillis = 400, easing = FastOutSlowInEasing)
             )
             Card(
@@ -105,6 +104,7 @@ fun TimerText(
                 modifier = Modifier
                     .size(48.dp)
                     .padding(4.dp)
+                    .align(alignment = Alignment.CenterVertically)
                     .clickable(onClick = { onStop() }),
                 shape = CircleShape,
                 elevation = 4.dp,
@@ -112,7 +112,7 @@ fun TimerText(
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.ic_stop),
-                    contentDescription = "Pause Button"
+                    contentDescription = "Stop Button"
                 )
             }
         }

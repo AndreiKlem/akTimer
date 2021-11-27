@@ -2,6 +2,7 @@ package ru.aklem.aktimer
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -38,9 +39,20 @@ fun BottomNavGraph(
             SavedScreen()
         }
         composable(route = BottomBarScreen.Create.route) {
+            val title = chartViewModel.title.collectAsState().value
+            val headerPrepare = chartViewModel.headerPrepare.collectAsState().value
+            val headerAction = chartViewModel.headerAction.collectAsState().value
+            val headerRest = chartViewModel.headerRest.collectAsState().value
             CreateScreen(
                 navController = navController,
-                chartViewModel = chartViewModel
+                title = title,
+                onTitleChange = chartViewModel::onTitleChange,
+                headerPrepare = headerPrepare,
+                onHeaderPrepareChange = chartViewModel::onHeaderPrepareChange,
+                headerAction = headerAction,
+                onHeaderActionChange = chartViewModel::onHeaderActionChange,
+                headerRest = headerRest,
+                onHeaderRestChange = chartViewModel::onHeaderRestChange
             )
         }
     }
