@@ -4,7 +4,6 @@ import androidx.compose.animation.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -14,10 +13,10 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -34,10 +33,19 @@ fun CreateScreen(
     onTitleChange: (String) -> Unit,
     headerPrepare: String,
     onHeaderPrepareChange: (String) -> Unit,
+    prepareTime: Int,
+    onPrepareTimeChange: (Int, Int) -> Unit,
     headerAction: String,
     onHeaderActionChange: (String) -> Unit,
+    actionTime: Int,
+    onActionTimeChange: (Int, Int) -> Unit,
     headerRest: String,
-    onHeaderRestChange: (String) -> Unit
+    onHeaderRestChange: (String) -> Unit,
+    restTime: Int,
+    onRestTimeChange: (Int, Int) -> Unit,
+    sets: Int,
+    onSetsAmountChange: (String) -> Unit,
+    createChart: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -55,13 +63,14 @@ fun CreateScreen(
             textStyle = TextStyle(fontSize = 18.sp),
             singleLine = true
         )
-        PrepareCard(headerPrepare, onHeaderPrepareChange)
-        ActionCard(headerAction, onHeaderActionChange)
-        RestCard(headerRest, onHeaderRestChange)
-        RepeatCard()
+        PrepareCard(headerPrepare, onHeaderPrepareChange, prepareTime, onPrepareTimeChange)
+        ActionCard(headerAction, onHeaderActionChange, actionTime, onActionTimeChange)
+        RestCard(headerRest, onHeaderRestChange, restTime, onRestTimeChange)
+        RepeatCard(sets, onSetsAmountChange)
         Button(
             onClick = {
-                navController.navigate("timer")
+                createChart()
+                navController.navigate("saved")
             },
             modifier = Modifier
                 .align(Alignment.End)
@@ -73,38 +82,58 @@ fun CreateScreen(
 }
 
 @Composable
-fun PrepareCard(headerPrepare: String, onHeaderPrepareChange: (String) -> Unit) {
+fun PrepareCard(
+    headerPrepare: String,
+    onHeaderPrepareChange: (String) -> Unit,
+    prepareTime: Int,
+    onPrepareTimeChange: (Int, Int) -> Unit
+) {
     CardTemplate(
         header = headerPrepare,
-        onHeaderChange = onHeaderPrepareChange
+        onHeaderChange = onHeaderPrepareChange,
+        time = prepareTime,
+        onTimeChange = onPrepareTimeChange
     )
 }
 
 @Composable
-fun ActionCard(headerAction: String, onHeaderActionChange: (String) -> Unit) {
+fun ActionCard(
+    headerAction: String,
+    onHeaderActionChange: (String) -> Unit,
+    actionTime: Int,
+    onActionTimeChange: (Int, Int) -> Unit
+) {
     val topShape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp)
     CardTemplate(
         header = headerAction,
         onHeaderChange = onHeaderActionChange,
+        time = actionTime,
+        onTimeChange = onActionTimeChange,
         cornersShape = topShape,
         cardBackground = setsBackground
     )
 }
 
 @Composable
-fun RestCard(headerRest: String, onHeaderRestChange: (String) -> Unit) {
+fun RestCard(
+    headerRest: String,
+    onHeaderRestChange: (String) -> Unit,
+    restTime: Int,
+    onRestTimeChange: (Int, Int) -> Unit
+) {
     val middleShape = RoundedCornerShape(0.dp)
     CardTemplate(
         header = headerRest,
         onHeaderChange = onHeaderRestChange,
+        time = restTime,
+        onTimeChange = onRestTimeChange,
         cornersShape = middleShape,
         cardBackground = setsBackground
     )
 }
 
 @Composable
-fun RepeatCard() {
-    var sets by rememberSaveable { mutableStateOf("1") }
+fun RepeatCard(sets: Int, onSetsAmountChange: (String) -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -119,25 +148,26 @@ fun RepeatCard() {
             horizontalArrangement = Arrangement.Center
         ) {
             Text(text = "Repeat", fontSize = 18.sp)
-            TextField(
+            OutlinedTextField(
                 modifier = Modifier
                     .padding(start = 4.dp, end = 4.dp)
-                    .width(60.dp),
-                value = sets,
+                    .fillMaxWidth(0.3f),
+                value = sets.toString(),
                 onValueChange = {
-                    sets = when {
-                        it.isEmpty() -> ""
-                        it.toIntOrNull() == null -> ""
-                        it.toInt() in 1..99 -> it
-                        it.toInt() > 99 -> "99"
-                        else -> "1"
-                    }
+                    onSetsAmountChange(
+                        when {
+                            it.toIntOrNull() == null -> "0"
+                            it.toInt() in 1..99 -> it
+                            it.toInt() > 99 -> "99"
+                            else -> "1"
+                        }
+                    )
                 },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 textStyle = TextStyle(fontSize = 18.sp)
             )
-            Text(text = if (sets == "1") "time" else "times", fontSize = 20.sp)
+            Text(text = if (sets == 1) "time" else "times", fontSize = 18.sp)
         }
     }
 }
@@ -146,10 +176,14 @@ fun RepeatCard() {
 fun CardTemplate(
     header: String,
     onHeaderChange: (String) -> Unit,
+    time: Int,
+    onTimeChange: (Int, Int) -> Unit,
     cornersShape: RoundedCornerShape = RoundedCornerShape(12.dp),
     cardBackground: Color = MaterialTheme.colors.background
 ) {
     var soundOn by remember { mutableStateOf(true) }
+    val minutes = time / 60
+    val seconds = time % 60
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -170,8 +204,18 @@ fun CardTemplate(
             Row(
                 modifier = Modifier.padding(bottom = 4.dp)
             ) {
-                TimeInput(label = "Minutes", modifier = Modifier.weight(0.45f))
-                TimeInput(label = "Seconds", modifier = Modifier.weight(0.45f))
+                TimeInput(
+                    label = "Minutes",
+                    modifier = Modifier.weight(0.45f),
+                    time = minutes,
+                    onTimeValueChange = { onTimeChange(it.toInt(), seconds) }
+                )
+                TimeInput(
+                    label = "Seconds",
+                    modifier = Modifier.weight(0.45f),
+                    time = seconds,
+                    onTimeValueChange = { onTimeChange(minutes, it.toInt()) }
+                )
                 Image(
                     modifier = Modifier
                         .padding(horizontal = 4.dp)
@@ -188,21 +232,21 @@ fun CardTemplate(
 }
 
 @Composable
-fun TimeInput(label: String, modifier: Modifier) {
-    var timeValue by rememberSaveable { mutableStateOf("0") }
+fun TimeInput(label: String, modifier: Modifier, time: Int, onTimeValueChange: (String) -> Unit) {
     OutlinedTextField(
         modifier = modifier.padding(horizontal = 4.dp),
         label = { Text(text = label) },
         placeholder = { Text(text = "max 59") },
-        value = timeValue,
+        value = if (time == 0) "" else time.toString(),
         onValueChange = {
-            timeValue = when {
-                it.isEmpty() -> ""
-                it.toIntOrNull() == null -> ""
-                it.toInt() in 1..59 -> it
-                it.toInt() > 59 -> "59"
-                else -> "0"
-            }
+            onTimeValueChange(
+                when {
+                    it.toIntOrNull() == null -> "0"
+                    it.toInt() in 1..59 -> it
+                    it.toInt() > 59 -> "59"
+                    else -> "0"
+                }
+            )
         },
         singleLine = true,
         textStyle = TextStyle(fontSize = 18.sp),
