@@ -18,7 +18,6 @@ fun BottomNavGraph(
     onStartPause: (List<Int>) -> Unit,
     onStop: () -> Unit,
     chartViewModel: ChartViewModel,
-    startValue: List<Int>,
     timerValue: Int,
     isRunning: Boolean
 ) {
@@ -28,15 +27,16 @@ fun BottomNavGraph(
     ) {
         composable(route = BottomBarScreen.Timer.route) {
             TimerScreen(
+                chartViewModel = chartViewModel,
                 onStartPause = onStartPause,
                 onStop = onStop,
-                startValue = startValue,
                 timerValue = timerValue,
                 isRunning = isRunning
             )
         }
         composable(route = BottomBarScreen.Saved.route) {
-            SavedScreen(chartViewModel)
+            val charts = chartViewModel.charts
+            SavedScreen(navController = navController, charts = charts, onClick = chartViewModel::selectChart)
         }
         composable(route = BottomBarScreen.Create.route) {
             val title = chartViewModel.title.collectAsState().value

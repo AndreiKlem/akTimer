@@ -20,14 +20,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ru.aklem.aktimer.R
 import ru.aklem.aktimer.ui.theme.AkTimerTheme
+import ru.aklem.aktimer.viewmodel.ChartViewModel
 import ru.aklem.aktimer.viewmodel.TimerViewModel
 
 @ExperimentalAnimationApi
 @Composable
 fun TimerScreen(
+    chartViewModel: ChartViewModel,
     onStartPause: (List<Int>) -> Unit,
     onStop: () -> Unit,
-    startValue: List<Int>,
     timerValue: Int,
     isRunning: Boolean
 ) {
@@ -38,24 +39,9 @@ fun TimerScreen(
         TimerText(
             onStartPause = onStartPause,
             onStop = onStop,
-            startValue = startValue,
+            startValue = getChartTimes(chartViewModel),
             timerValue = timerValue,
             isRunning = isRunning
-        )
-    }
-}
-
-@ExperimentalAnimationApi
-@Composable
-@Preview
-fun HomeScreenPreview() {
-    AkTimerTheme {
-        TimerScreen(
-            onStartPause = TimerViewModel()::toggleStartPause,
-            onStop = TimerViewModel()::stop,
-            startValue = listOf(10, 20),
-            timerValue = 100,
-            isRunning = false
         )
     }
 }
@@ -127,4 +113,14 @@ private fun getTimerText(duration: Int): String {
 
 fun formattedNumber(number: Int): String {
     return number.toString().padStart(2, '0')
+}
+
+fun getChartTimes(chartViewModel: ChartViewModel): List<Int> {
+    val chart = chartViewModel.selectedChart
+    val timeValues = mutableListOf(chart.prepareTime)
+    for (i in 0..chart.repeat) {
+        timeValues.add(chart.actionTime)
+        timeValues.add(chart.restTime)
+    }
+    return timeValues
 }

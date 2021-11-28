@@ -33,7 +33,6 @@ fun MainScreen(
             onStartPause = onStartPause,
             onStop = onStop,
             chartViewModel = chartViewModel,
-            startValue = startValue,
             timerValue = timerValue,
             isRunning = isRunning
         )
