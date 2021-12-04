@@ -12,8 +12,10 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import kotlinx.coroutines.InternalCoroutinesApi
 import ru.aklem.aktimer.viewmodel.ChartViewModel
 
+@InternalCoroutinesApi
 @ExperimentalAnimationApi
 @Composable
 fun MainScreen(

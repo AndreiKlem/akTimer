@@ -16,13 +16,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.InternalCoroutinesApi
 import ru.aklem.aktimer.R
-import ru.aklem.aktimer.ui.theme.AkTimerTheme
 import ru.aklem.aktimer.viewmodel.ChartViewModel
-import ru.aklem.aktimer.viewmodel.TimerViewModel
 
+@InternalCoroutinesApi
 @ExperimentalAnimationApi
 @Composable
 fun TimerScreen(
@@ -115,12 +114,16 @@ fun formattedNumber(number: Int): String {
     return number.toString().padStart(2, '0')
 }
 
+@InternalCoroutinesApi
 fun getChartTimes(chartViewModel: ChartViewModel): List<Int> {
     val chart = chartViewModel.selectedChart
-    val timeValues = mutableListOf(chart.prepareTime)
-    for (i in 0..chart.repeat) {
-        timeValues.add(chart.actionTime)
-        timeValues.add(chart.restTime)
+    val timeValues = mutableListOf<Int>()
+    if (chart != null) {
+        timeValues.add(chart.preparationTime)
+        for (i in 0..(chart.repeat)) {
+            timeValues.add(chart.actionTime)
+            timeValues.add(chart.restTime)
+        }
     }
     return timeValues
 }

@@ -13,23 +13,27 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import ru.aklem.aktimer.Chart
+import ru.aklem.aktimer.data.Chart
 
 @Composable
-fun SavedScreen(navController: NavController, charts: List<Chart>, onClick: (Int) -> Unit) {
-    LazyColumn(
-        modifier = Modifier
-            .padding(8.dp)
-            .fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        itemsIndexed(items = charts) { index, chart ->
-            ChartCard(
-                navController = navController,
-                chart = chart,
-                index = index,
-                onClick = onClick
-            )
+fun SavedScreen(navController: NavController, charts: List<Chart>?, onClick: (Int) -> Unit) {
+    if (charts == null) {
+        Text(text = "No timers created yet")
+    } else {
+        LazyColumn(
+            modifier = Modifier
+                .padding(8.dp)
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            itemsIndexed(items = charts) { index, chart ->
+                ChartCard(
+                    navController = navController,
+                    chart = chart,
+                    index = index,
+                    onClick = onClick
+                )
+            }
         }
     }
 }

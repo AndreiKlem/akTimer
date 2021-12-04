@@ -8,12 +8,14 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.runtime.collectAsState
+import kotlinx.coroutines.InternalCoroutinesApi
 import ru.aklem.aktimer.ui.theme.AkTimerTheme
 import ru.aklem.aktimer.viewmodel.ChartViewModel
 import ru.aklem.aktimer.viewmodel.TimerViewModel
 
 @ExperimentalAnimationApi
 class MainActivity : ComponentActivity() {
+    @InternalCoroutinesApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {

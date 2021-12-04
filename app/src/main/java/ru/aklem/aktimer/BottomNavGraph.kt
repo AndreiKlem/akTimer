@@ -3,14 +3,17 @@ package ru.aklem.aktimer
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import kotlinx.coroutines.InternalCoroutinesApi
 import ru.aklem.aktimer.screens.CreateScreen
 import ru.aklem.aktimer.screens.SavedScreen
 import ru.aklem.aktimer.screens.TimerScreen
 import ru.aklem.aktimer.viewmodel.ChartViewModel
 
+@InternalCoroutinesApi
 @ExperimentalAnimationApi
 @Composable
 fun BottomNavGraph(
@@ -35,8 +38,12 @@ fun BottomNavGraph(
             )
         }
         composable(route = BottomBarScreen.Saved.route) {
-            val charts = chartViewModel.charts
-            SavedScreen(navController = navController, charts = charts, onClick = chartViewModel::selectChart)
+            val charts = chartViewModel.charts.observeAsState().value
+            SavedScreen(
+                navController = navController,
+                charts = charts,
+                onClick = chartViewModel::selectChart
+            )
         }
         composable(route = BottomBarScreen.Create.route) {
             val title = chartViewModel.title.collectAsState().value

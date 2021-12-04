@@ -1,67 +1,36 @@
 package ru.aklem.aktimer.viewmodel
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.*
+import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import ru.aklem.aktimer.Chart
+import kotlinx.coroutines.launch
+import ru.aklem.aktimer.data.Chart
+import ru.aklem.aktimer.data.ChartDatabase
+import ru.aklem.aktimer.data.ChartRepository
 
-class ChartViewModel : ViewModel() {
+@InternalCoroutinesApi
+class ChartViewModel(application: Application) : AndroidViewModel(application) {
+
     private val chart = Chart()
-    private val _charts = mutableListOf(
-        Chart(
-            title = "Pancakes",
-            headerPrepare = "Warming up a pan",
-            prepareTime = 150,
-            headerAction = "Cooking",
-            actionTime = 120,
-            headerRest = "Flipping",
-            restTime = 10,
-            repeat = 30
-        ),
-        Chart(
-            title = "Squats",
-            headerPrepare = "Getting ready",
-            prepareTime = 10,
-            headerAction = "Squatting",
-            actionTime = 60,
-            headerRest = "Resting",
-            restTime = 30,
-            repeat = 5
-        ),
-        Chart(
-            title = "Push-ups",
-            headerPrepare = "Getting ready",
-            prepareTime = 10,
-            headerAction = "Pushing-up",
-            actionTime = 30,
-            headerRest = "Resting",
-            restTime = 30,
-            repeat = 5
-        ),
-        Chart(
-            title = "Running",
-            headerAction = "RUN!",
-            actionTime = 1800
-        ),
-        Chart(
-            title = "Fast check",
-            headerPrepare = "Preparing!",
-            prepareTime = 5,
-            headerAction = "Buzzing!",
-            actionTime = 3,
-            headerRest = "Resting!",
-            restTime = 2,
-            repeat = 3
-        )
-    )
+    private val _charts: LiveData<List<Chart>>
+    private val repository: ChartRepository
+
+    init {
+        val chartDao = ChartDatabase.getInstance(application).chartDao()
+        repository = ChartRepository(chartDao)
+        _charts = repository.readAllData
+    }
+
     val charts = _charts
-    var selectedChart = charts[0]
+    var selectedChart = charts.value?.get(0)
 
     private var _title = MutableStateFlow(chart.title)
     val title = _title.asStateFlow()
-    private var _headerPrepare = MutableStateFlow(chart.headerPrepare)
+    private var _headerPrepare = MutableStateFlow(chart.headerPreparation)
     val headerPrepare = _headerPrepare.asStateFlow()
-    private var _prepareTime = MutableStateFlow(chart.prepareTime)
+    private var _prepareTime = MutableStateFlow(chart.preparationTime)
     val prepareTime = _prepareTime.asStateFlow()
     private var _headerAction = MutableStateFlow(chart.headerAction)
     val headerAction = _headerAction.asStateFlow()
@@ -107,12 +76,14 @@ class ChartViewModel : ViewModel() {
     }
 
     fun createChart() {
-        charts.add(chart)
         resetChart()
+        viewModelScope.launch {
+            repository.addChart(chart)
+        }
     }
 
     fun selectChart(index: Int) {
-        selectedChart = charts[index]
+        selectedChart = charts.value?.get(index)
     }
 
     private fun resetChart() {
