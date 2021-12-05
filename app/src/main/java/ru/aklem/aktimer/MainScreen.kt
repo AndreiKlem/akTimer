@@ -13,16 +13,16 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.InternalCoroutinesApi
+import ru.aklem.aktimer.misc.Period
 import ru.aklem.aktimer.viewmodel.ChartViewModel
 
 @InternalCoroutinesApi
 @ExperimentalAnimationApi
 @Composable
 fun MainScreen(
-    onStartPause: (List<Int>) -> Unit,
+    onStartPause: (List<Period>) -> Unit,
     onStop: () -> Unit,
     chartViewModel: ChartViewModel,
-    startValue: List<Int>,
     timerValue: Int,
     isRunning: Boolean
 ) {

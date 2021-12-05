@@ -1,6 +1,8 @@
 package ru.aklem.aktimer.viewmodel
 
 import android.app.Application
+import android.content.ContentValues.TAG
+import android.util.Log
 import androidx.lifecycle.*
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,8 +30,8 @@ class ChartViewModel(application: Application) : AndroidViewModel(application) {
 
     private var _title = MutableStateFlow(chart.title)
     val title = _title.asStateFlow()
-    private var _headerPrepare = MutableStateFlow(chart.headerPreparation)
-    val headerPrepare = _headerPrepare.asStateFlow()
+    private var _headerPreparation = MutableStateFlow(chart.headerPreparation)
+    val headerPreparation = _headerPreparation.asStateFlow()
     private var _prepareTime = MutableStateFlow(chart.preparationTime)
     val prepareTime = _prepareTime.asStateFlow()
     private var _headerAction = MutableStateFlow(chart.headerAction)
@@ -48,7 +50,7 @@ class ChartViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun onHeaderPrepareChange(newHeader: String) {
-        _headerPrepare.value = newHeader
+        _headerPreparation.value = newHeader
     }
 
     fun onPrepareTimeChange(minutes: Int, seconds: Int) {
@@ -76,9 +78,17 @@ class ChartViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun createChart() {
-        resetChart()
         viewModelScope.launch {
-            repository.addChart(chart)
+            repository.addChart(Chart(
+                title = title.value,
+                headerPreparation = headerPreparation.value,
+                preparationTime = prepareTime.value,
+                headerAction = headerAction.value,
+                actionTime = actionTime.value,
+                headerRest = headerRest.value,
+                restTime = restTime.value,
+                repeat = repeat.value
+            ))
         }
     }
 
@@ -88,7 +98,7 @@ class ChartViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun resetChart() {
         _title.value = ""
-        _headerPrepare.value = ""
+        _headerPreparation.value = ""
         _prepareTime.value = 0
         _headerAction.value = ""
         _actionTime.value = 0

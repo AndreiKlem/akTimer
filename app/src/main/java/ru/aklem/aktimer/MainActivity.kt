@@ -9,6 +9,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.runtime.collectAsState
 import kotlinx.coroutines.InternalCoroutinesApi
+import ru.aklem.aktimer.misc.Period
 import ru.aklem.aktimer.ui.theme.AkTimerTheme
 import ru.aklem.aktimer.viewmodel.ChartViewModel
 import ru.aklem.aktimer.viewmodel.TimerViewModel
@@ -24,14 +25,12 @@ class MainActivity : ComponentActivity() {
                 val chartViewModel by viewModels<ChartViewModel>()
                 val timerValue = timerViewModel.timerValue.collectAsState().value
                 val isRunning = timerViewModel.isRunning.collectAsState().value
-                val startValue = listOf(5, 3)
                 // A surface container using the 'background' color from the theme
                 Surface(color = MaterialTheme.colors.background) {
                     MainScreen(
                         onStartPause = timerViewModel::toggleStartPause,
                         onStop = timerViewModel::stop,
                         chartViewModel = chartViewModel,
-                        startValue = startValue,
                         timerValue = timerValue,
                         isRunning = isRunning
                     )

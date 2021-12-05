@@ -19,6 +19,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.InternalCoroutinesApi
 import ru.aklem.aktimer.R
+import ru.aklem.aktimer.misc.Period
 import ru.aklem.aktimer.viewmodel.ChartViewModel
 
 @InternalCoroutinesApi
@@ -26,7 +27,7 @@ import ru.aklem.aktimer.viewmodel.ChartViewModel
 @Composable
 fun TimerScreen(
     chartViewModel: ChartViewModel,
-    onStartPause: (List<Int>) -> Unit,
+    onStartPause: (List<Period>) -> Unit,
     onStop: () -> Unit,
     timerValue: Int,
     isRunning: Boolean
@@ -38,7 +39,7 @@ fun TimerScreen(
         TimerText(
             onStartPause = onStartPause,
             onStop = onStop,
-            startValue = getChartTimes(chartViewModel),
+            periods = getPeriods(chartViewModel),
             timerValue = timerValue,
             isRunning = isRunning
         )
@@ -47,9 +48,9 @@ fun TimerScreen(
 
 @Composable
 fun TimerText(
-    onStartPause: (List<Int>) -> Unit,
+    onStartPause: (List<Period>) -> Unit,
     onStop: () -> Unit,
-    startValue: List<Int>,
+    periods: List<Period>,
     timerValue: Int,
     isRunning: Boolean
 ) {
@@ -72,7 +73,7 @@ fun TimerText(
                     .size(64.dp)
                     .padding(4.dp)
                     .graphicsLayer { rotationY = rotation.value }
-                    .clickable(onClick = { onStartPause(startValue) }),
+                    .clickable(onClick = { onStartPause(periods) }),
                 shape = CircleShape,
                 elevation = 4.dp,
                 backgroundColor = MaterialTheme.colors.primary
@@ -115,15 +116,17 @@ fun formattedNumber(number: Int): String {
 }
 
 @InternalCoroutinesApi
-fun getChartTimes(chartViewModel: ChartViewModel): List<Int> {
+fun getPeriods(chartViewModel: ChartViewModel): List<Period> {
     val chart = chartViewModel.selectedChart
-    val timeValues = mutableListOf<Int>()
-    if (chart != null) {
-        timeValues.add(chart.preparationTime)
-        for (i in 0..(chart.repeat)) {
-            timeValues.add(chart.actionTime)
-            timeValues.add(chart.restTime)
+    val periods = mutableListOf<Period>()
+    chart?.let {
+        if (it.preparationTime > 0) {
+            periods.add(Period(name = it.headerPreparation, time = it.preparationTime))
+        }
+        for (i in 0..(it.repeat)) {
+            periods.add(Period(name = it.headerAction, time = it.actionTime))
+            if (it.restTime > 0) periods.add(Period(name = it.headerRest, time = it.restTime))
         }
     }
-    return timeValues
+    return periods
 }

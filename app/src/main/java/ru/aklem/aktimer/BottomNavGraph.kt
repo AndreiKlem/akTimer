@@ -8,6 +8,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import kotlinx.coroutines.InternalCoroutinesApi
+import ru.aklem.aktimer.misc.Period
 import ru.aklem.aktimer.screens.CreateScreen
 import ru.aklem.aktimer.screens.SavedScreen
 import ru.aklem.aktimer.screens.TimerScreen
@@ -18,7 +19,7 @@ import ru.aklem.aktimer.viewmodel.ChartViewModel
 @Composable
 fun BottomNavGraph(
     navController: NavHostController,
-    onStartPause: (List<Int>) -> Unit,
+    onStartPause: (List<Period>) -> Unit,
     onStop: () -> Unit,
     chartViewModel: ChartViewModel,
     timerValue: Int,
@@ -47,7 +48,7 @@ fun BottomNavGraph(
         }
         composable(route = BottomBarScreen.Create.route) {
             val title = chartViewModel.title.collectAsState().value
-            val headerPrepare = chartViewModel.headerPrepare.collectAsState().value
+            val headerPrepare = chartViewModel.headerPreparation.collectAsState().value
             val prepareTime = chartViewModel.prepareTime.collectAsState().value
             val headerAction = chartViewModel.headerAction.collectAsState().value
             val actionTime = chartViewModel.actionTime.collectAsState().value

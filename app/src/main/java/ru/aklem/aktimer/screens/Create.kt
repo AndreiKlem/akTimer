@@ -1,5 +1,8 @@
 package ru.aklem.aktimer.screens
 
+import android.content.ContentValues.TAG
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.animation.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -69,8 +72,12 @@ fun CreateScreen(
         RepeatCard(sets, onSetsAmountChange)
         Button(
             onClick = {
-                createChart()
-                navController.navigate("saved")
+                if (isValidInput(actionTime)) {
+                    createChart()
+                    navController.navigate("saved")
+                } else {
+                    Log.d(TAG, "CreateScreen: invalid input")
+                }
             },
             modifier = Modifier
                 .align(Alignment.End)
@@ -79,6 +86,12 @@ fun CreateScreen(
             Text(text = "Create Timer")
         }
     }
+}
+
+fun isValidInput(time: Int): Boolean {
+    var result = false
+    if (time > 0) result = true
+    return result
 }
 
 @Composable
@@ -152,14 +165,16 @@ fun RepeatCard(sets: Int, onSetsAmountChange: (String) -> Unit) {
                 modifier = Modifier
                     .padding(start = 4.dp, end = 4.dp)
                     .fillMaxWidth(0.3f),
-                value = sets.toString(),
+                label = { Text(text = if (sets == 1) "time" else "times", fontSize = 18.sp) },
+                placeholder = { Text(text = "max 99") },
+                value = if (sets == 0) "" else sets.toString(),
                 onValueChange = {
                     onSetsAmountChange(
                         when {
                             it.toIntOrNull() == null -> "0"
                             it.toInt() in 1..99 -> it
                             it.toInt() > 99 -> "99"
-                            else -> "1"
+                            else -> "0"
                         }
                     )
                 },
@@ -167,7 +182,6 @@ fun RepeatCard(sets: Int, onSetsAmountChange: (String) -> Unit) {
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 textStyle = TextStyle(fontSize = 18.sp)
             )
-            Text(text = if (sets == 1) "time" else "times", fontSize = 18.sp)
         }
     }
 }

@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.internal.synchronized
 
-@Database(entities = [Chart::class], version = 1, exportSchema = false)
+@Database(entities = [Chart::class], version = 1, exportSchema = true)
 abstract class ChartDatabase : RoomDatabase() {
     abstract fun chartDao(): ChartDao
 
@@ -25,7 +25,7 @@ abstract class ChartDatabase : RoomDatabase() {
                         ChartDatabase::class.java,
                         "chart_database"
                     )
-                        .createFromAsset("database/chart.db")
+//                        .createFromAsset("database/chart.db")
                         .fallbackToDestructiveMigration()
                         .build()
                     INSTANCE = instance
