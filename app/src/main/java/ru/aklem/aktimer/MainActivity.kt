@@ -22,17 +22,13 @@ class MainActivity : ComponentActivity() {
             AkTimerTheme {
                 val timerViewModel by viewModels<TimerViewModel>()
                 val chartViewModel by viewModels<ChartViewModel>()
-                val timerValue = timerViewModel.timerValue.collectAsState().value
-                val isRunning = timerViewModel.isRunning.collectAsState().value
+                timerViewModel.timerValue.collectAsState().value
+                timerViewModel.isRunning.collectAsState().value
                 // A surface container using the 'background' color from the theme
                 Surface(color = MaterialTheme.colors.background) {
                     MainScreen(
-                        onStartPause = timerViewModel::toggleStartPause,
-                        onStop = timerViewModel::stop,
                         timerViewModel = timerViewModel,
-                        chartViewModel = chartViewModel,
-                        timerValue = timerValue,
-                        isRunning = isRunning
+                        chartViewModel = chartViewModel
                     )
                 }
             }

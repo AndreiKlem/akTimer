@@ -5,11 +5,15 @@ import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.navigation.NavHostController
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import kotlinx.coroutines.InternalCoroutinesApi
-import ru.aklem.aktimer.misc.Period
+import ru.aklem.aktimer.misc.Directions
+import ru.aklem.aktimer.misc.Directions.BACKWARDS
+import ru.aklem.aktimer.misc.Directions.FORWARD
 import ru.aklem.aktimer.screens.CreateScreen
 import ru.aklem.aktimer.screens.SavedScreen
 import ru.aklem.aktimer.screens.TimerScreen
@@ -21,35 +25,35 @@ import ru.aklem.aktimer.viewmodel.TimerViewModel
 @Composable
 fun BottomNavGraph(
     navController: NavHostController,
-    onStartPause: (List<Period>) -> Unit,
-    onStop: () -> Unit,
     timerViewModel: TimerViewModel,
-    chartViewModel: ChartViewModel,
-    timerValue: Int,
-    isRunning: Boolean
+    chartViewModel: ChartViewModel
 ) {
-    var direction = "forward"
-    var currentScreen = "timer"
+    val timerValue = timerViewModel.timerValue.collectAsState().value
+    val isRunning = timerViewModel.isRunning.collectAsState().value
+    var direction = FORWARD
+    var currentScreen = remember { mutableStateOf(BottomBarScreen.Timer.route).value }
     AnimatedNavHost(
         navController = navController,
         startDestination = BottomBarScreen.Timer.route
     ) {
         navController.addOnDestinationChangedListener { _, destination, _ ->
             val nextScreen = destination.route.toString()
-            direction = if (currentScreen == "saved" && nextScreen == "create" ||
-                currentScreen == "timer" && nextScreen == "saved") "forward"
-            else "backwards"
+            direction = if (currentScreen == BottomBarScreen.Saved.route &&
+                nextScreen == BottomBarScreen.Create.route
+                || currentScreen == BottomBarScreen.Timer.route &&
+                nextScreen == BottomBarScreen.Saved.route) FORWARD
+            else BACKWARDS
         }
         composable(
             route = BottomBarScreen.Timer.route,
-            enterTransition = { enterAnimation("backwards") },
-            exitTransition = { exitAnimation("forward") }
+            enterTransition = { enterAnimation(BACKWARDS) },
+            exitTransition = { exitAnimation(FORWARD) }
         ) {
             currentScreen = BottomBarScreen.Timer.route
             TimerScreen(
                 chartViewModel = chartViewModel,
-                onStartPause = onStartPause,
-                onStop = onStop,
+                onStartPause = timerViewModel::toggleStartPause,
+                onStop = timerViewModel::stop,
                 timerValue = timerValue,
                 isRunning = isRunning
             )
@@ -70,8 +74,8 @@ fun BottomNavGraph(
         }
         composable(
             route = BottomBarScreen.Create.route,
-            enterTransition = { enterAnimation("forward") },
-            exitTransition = { exitAnimation("backwards") }
+            enterTransition = { enterAnimation(FORWARD) },
+            exitTransition = { exitAnimation(BACKWARDS) }
         ) {
             currentScreen = BottomBarScreen.Create.route
             val title = chartViewModel.title.collectAsState().value
@@ -106,8 +110,8 @@ fun BottomNavGraph(
     }
 }
 
-private fun exitAnimation(direction: String): ExitTransition {
-    return if (direction == "forward") {
+private fun exitAnimation(direction: Directions): ExitTransition {
+    return if (direction == FORWARD) {
         slideOutHorizontally(targetOffsetX = { -it / 2 }, animationSpec = tween(300)) +
                 fadeOut(animationSpec = tween(300))
     } else {
@@ -116,8 +120,8 @@ private fun exitAnimation(direction: String): ExitTransition {
     }
 }
 
-private fun enterAnimation(direction: String): EnterTransition {
-    return if (direction == "forward") {
+private fun enterAnimation(direction: Directions): EnterTransition {
+    return if (direction == FORWARD) {
         slideInHorizontally(initialOffsetX = { it / 2 }, animationSpec = tween(300)) +
                 fadeIn(animationSpec = tween(300))
     } else {

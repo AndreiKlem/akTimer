@@ -43,9 +43,7 @@ fun SavedScreen(
         }
     } else {
         LazyColumn(
-            modifier = Modifier
-                .padding(vertical = 4.dp)
-                .fillMaxSize(),
+            modifier = Modifier.padding(vertical = 4.dp).fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             itemsIndexed(items = charts) { index, chart ->
