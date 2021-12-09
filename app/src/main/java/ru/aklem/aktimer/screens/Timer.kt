@@ -105,7 +105,7 @@ fun TimerText(
     }
 }
 
-private fun getTimerText(duration: Int): String {
+fun getTimerText(duration: Int): String {
     val min = duration / 60
     val sec = duration % 60
     return "${formattedNumber(min)} : ${formattedNumber(sec)}"

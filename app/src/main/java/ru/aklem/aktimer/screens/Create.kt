@@ -1,9 +1,7 @@
 package ru.aklem.aktimer.screens
 
-import android.content.ContentValues.TAG
-import android.util.Log
 import android.widget.Toast
-import androidx.compose.animation.*
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -13,17 +11,13 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import ru.aklem.aktimer.R
 import ru.aklem.aktimer.ui.theme.setsBackground
@@ -53,44 +47,63 @@ fun CreateScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .padding(horizontal = 8.dp, vertical = 4.dp)
             .verticalScroll(state = rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Button(
+            onClick = {
+                when (checkInput(title, actionTime)) {
+                    1 -> {
+                        createChart()
+                        navController.navigate("saved")
+                    }
+                    2 -> {
+                        Toast.makeText(
+                            navController.context,
+                            "Please enter a title",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                    3 -> {
+                        Toast.makeText(
+                            navController.context,
+                            "Please enter a time for action",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            },
+            modifier = Modifier
+                .padding(end = 8.dp)
+                .align(Alignment.End)
+        ) {
+            Text(text = "Create Timer")
+        }
         OutlinedTextField(
             modifier = Modifier
-                .padding(8.dp)
+                .padding(horizontal = 8.dp, vertical = 4.dp)
+                .fillMaxWidth()
                 .align(Alignment.CenterHorizontally),
             placeholder = { Text(text = "Please enter a title") },
             value = title,
             onValueChange = { if (it.length < 40) onTitleChange(it) },
-            textStyle = TextStyle(fontSize = 18.sp),
             singleLine = true
         )
         PrepareCard(headerPrepare, onHeaderPrepareChange, prepareTime, onPrepareTimeChange)
         ActionCard(headerAction, onHeaderActionChange, actionTime, onActionTimeChange)
         RestCard(headerRest, onHeaderRestChange, restTime, onRestTimeChange)
         RepeatCard(sets, onSetsAmountChange)
-        Button(
-            onClick = {
-                if (isValidInput(actionTime)) {
-                    createChart()
-                    navController.navigate("saved")
-                } else {
-                    Log.d(TAG, "CreateScreen: invalid input")
-                }
-            },
-            modifier = Modifier
-                .align(Alignment.End)
-                .padding(8.dp)
-        ) {
-            Text(text = "Create Timer")
-        }
     }
 }
 
-fun isValidInput(time: Int): Boolean {
-    var result = false
-    if (time > 0) result = true
+fun checkInput(title: String, actionTime: Int): Int {
+    var result = 1
+    if (title.isBlank()) {
+        result = 2
+
+    }
+    else if (actionTime <= 0) result = 3
     return result
 }
 
@@ -116,7 +129,7 @@ fun ActionCard(
     actionTime: Int,
     onActionTimeChange: (Int, Int) -> Unit
 ) {
-    val topShape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp)
+    val topShape = RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp)
     CardTemplate(
         header = headerAction,
         onHeaderChange = onHeaderActionChange,
@@ -150,22 +163,20 @@ fun RepeatCard(sets: Int, onSetsAmountChange: (String) -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 8.dp, end = 8.dp, top = 4.dp),
-        elevation = 4.dp,
-        shape = RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp),
+            .padding(top = 4.dp),
+        shape = RoundedCornerShape(bottomStart = 8.dp, bottomEnd = 8.dp),
         backgroundColor = setsBackground
     ) {
         Row(
-            modifier = Modifier.padding(4.dp),
+            modifier = Modifier.padding(8.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            Text(text = "Repeat", fontSize = 18.sp)
+            Text(text = "Repeat")
             OutlinedTextField(
                 modifier = Modifier
-                    .padding(start = 4.dp, end = 4.dp)
-                    .fillMaxWidth(0.3f),
-                label = { Text(text = if (sets == 1) "time" else "times", fontSize = 18.sp) },
+                    .padding(start = 4.dp),
+                label = { Text(text = if (sets == 1) "time" else "times") },
                 placeholder = { Text(text = "max 99") },
                 value = if (sets == 0) "" else sets.toString(),
                 onValueChange = {
@@ -179,8 +190,7 @@ fun RepeatCard(sets: Int, onSetsAmountChange: (String) -> Unit) {
                     )
                 },
                 singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                textStyle = TextStyle(fontSize = 18.sp)
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
             )
         }
     }
@@ -192,7 +202,7 @@ fun CardTemplate(
     onHeaderChange: (String) -> Unit,
     time: Int,
     onTimeChange: (Int, Int) -> Unit,
-    cornersShape: RoundedCornerShape = RoundedCornerShape(12.dp),
+    cornersShape: RoundedCornerShape = RoundedCornerShape(8.dp),
     cardBackground: Color = MaterialTheme.colors.background
 ) {
     var soundOn by remember { mutableStateOf(true) }
@@ -201,29 +211,26 @@ fun CardTemplate(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp, vertical = 4.dp),
-        elevation = 4.dp,
+            .padding(vertical = 4.dp),
         shape = cornersShape,
         backgroundColor = cardBackground
     ) {
-        Column(modifier = Modifier.padding(4.dp)) {
+        Column(modifier = Modifier.padding(8.dp)) {
             OutlinedTextField(
-                modifier = Modifier.align(Alignment.CenterHorizontally),
+                modifier = Modifier.fillMaxWidth(),
                 placeholder = { Text(text = "Please enter a header") },
                 value = header,
                 onValueChange = { if (it.length < 40) onHeaderChange(it) },
-                textStyle = TextStyle(fontSize = 18.sp),
                 singleLine = true
             )
-            Row(
-                modifier = Modifier.padding(bottom = 4.dp)
-            ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 TimeInput(
                     label = "Minutes",
                     modifier = Modifier.weight(0.45f),
                     time = minutes,
                     onTimeValueChange = { onTimeChange(it.toInt(), seconds) }
                 )
+                Spacer(modifier = Modifier.padding(4.dp))
                 TimeInput(
                     label = "Seconds",
                     modifier = Modifier.weight(0.45f),
@@ -232,9 +239,8 @@ fun CardTemplate(
                 )
                 Image(
                     modifier = Modifier
-                        .padding(horizontal = 4.dp)
+                        .padding(top = 4.dp)
                         .weight(0.1f)
-                        .align(alignment = Alignment.CenterVertically)
                         .clickable(onClick = { soundOn = !soundOn }),
                     painter = painterResource(id = if (soundOn) R.drawable.ic_sound else R.drawable.ic_sound_off),
                     colorFilter = ColorFilter.tint(color = Color.Black),
@@ -248,7 +254,7 @@ fun CardTemplate(
 @Composable
 fun TimeInput(label: String, modifier: Modifier, time: Int, onTimeValueChange: (String) -> Unit) {
     OutlinedTextField(
-        modifier = modifier.padding(horizontal = 4.dp),
+        modifier = modifier,
         label = { Text(text = label) },
         placeholder = { Text(text = "max 59") },
         value = if (time == 0) "" else time.toString(),
@@ -263,47 +269,6 @@ fun TimeInput(label: String, modifier: Modifier, time: Int, onTimeValueChange: (
             )
         },
         singleLine = true,
-        textStyle = TextStyle(fontSize = 18.sp),
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
     )
-}
-
-@ExperimentalAnimationApi
-@Composable
-fun Spinner(upTo: Int) {
-    var spinnerValue by remember { mutableStateOf(0) }
-    Column {
-        Image(
-            modifier = Modifier.clickable(onClick = {
-                if (spinnerValue < upTo) spinnerValue++
-            }),
-            painter = painterResource(id = R.drawable.ic_arrow_up),
-            contentDescription = "Increase",
-        )
-        AnimatedContent(
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-            targetState = spinnerValue,
-            transitionSpec = {
-                if (targetState > initialState) {
-                    slideInVertically({ height -> height }) + fadeIn() with
-                            (slideOutVertically({ height -> -height })) + fadeOut()
-                } else {
-                    slideInVertically({ height -> -height }) + fadeIn() with
-                            (slideOutVertically({ height -> height }) + fadeOut())
-                }.using(SizeTransform(clip = false))
-            }
-        ) { targetValue ->
-            Text(
-                text = "$targetValue",
-                style = MaterialTheme.typography.h4
-            )
-        }
-        Image(
-            modifier = Modifier.clickable(onClick = {
-                if (spinnerValue > 0) spinnerValue--
-            }),
-            painter = painterResource(id = R.drawable.ic_arrow_down),
-            contentDescription = "Decrease"
-        )
-    }
 }

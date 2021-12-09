@@ -1,10 +1,8 @@
 package ru.aklem.aktimer.viewmodel
 
 import android.app.Application
-import android.content.ContentValues.TAG
 import android.media.AudioAttributes
 import android.media.SoundPool
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.*

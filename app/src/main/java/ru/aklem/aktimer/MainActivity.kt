@@ -9,7 +9,6 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.runtime.collectAsState
 import kotlinx.coroutines.InternalCoroutinesApi
-import ru.aklem.aktimer.misc.Period
 import ru.aklem.aktimer.ui.theme.AkTimerTheme
 import ru.aklem.aktimer.viewmodel.ChartViewModel
 import ru.aklem.aktimer.viewmodel.TimerViewModel
@@ -30,6 +29,7 @@ class MainActivity : ComponentActivity() {
                     MainScreen(
                         onStartPause = timerViewModel::toggleStartPause,
                         onStop = timerViewModel::stop,
+                        timerViewModel = timerViewModel,
                         chartViewModel = chartViewModel,
                         timerValue = timerValue,
                         isRunning = isRunning

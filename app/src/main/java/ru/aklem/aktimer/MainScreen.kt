@@ -11,10 +11,11 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
+import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import kotlinx.coroutines.InternalCoroutinesApi
 import ru.aklem.aktimer.misc.Period
 import ru.aklem.aktimer.viewmodel.ChartViewModel
+import ru.aklem.aktimer.viewmodel.TimerViewModel
 
 @InternalCoroutinesApi
 @ExperimentalAnimationApi
@@ -22,11 +23,12 @@ import ru.aklem.aktimer.viewmodel.ChartViewModel
 fun MainScreen(
     onStartPause: (List<Period>) -> Unit,
     onStop: () -> Unit,
+    timerViewModel: TimerViewModel,
     chartViewModel: ChartViewModel,
     timerValue: Int,
     isRunning: Boolean
 ) {
-    val navController = rememberNavController()
+    val navController = rememberAnimatedNavController()
     Scaffold(
         bottomBar = { BottomBar(navController = navController) }
     ) {
@@ -34,6 +36,7 @@ fun MainScreen(
             navController = navController,
             onStartPause = onStartPause,
             onStop = onStop,
+            timerViewModel = timerViewModel,
             chartViewModel = chartViewModel,
             timerValue = timerValue,
             isRunning = isRunning
