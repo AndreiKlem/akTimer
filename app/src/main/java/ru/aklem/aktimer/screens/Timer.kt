@@ -12,6 +12,7 @@ import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
@@ -21,25 +22,25 @@ import kotlinx.coroutines.InternalCoroutinesApi
 import ru.aklem.aktimer.R
 import ru.aklem.aktimer.misc.Period
 import ru.aklem.aktimer.viewmodel.ChartViewModel
+import ru.aklem.aktimer.viewmodel.TimerViewModel
 
 @InternalCoroutinesApi
 @ExperimentalAnimationApi
 @Composable
 fun TimerScreen(
-    chartViewModel: ChartViewModel,
-    onStartPause: (List<Period>) -> Unit,
-    onStop: () -> Unit,
-    timerValue: Int,
-    isRunning: Boolean
+    timerViewModel: TimerViewModel
 ) {
+    val timerValue = timerViewModel.timerValue.collectAsState().value
+    val isRunning = timerViewModel.isRunning.collectAsState().value
+    val currentPeriod = timerViewModel.currentPeriod.collectAsState().value
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        TimerText(
-            onStartPause = onStartPause,
-            onStop = onStop,
-            periods = getPeriods(chartViewModel),
+        CurrentPeriodInfo(period = currentPeriod)
+        Timer(
+            onStartPause = timerViewModel::toggleStartPause,
+            onStop = timerViewModel::stop,
             timerValue = timerValue,
             isRunning = isRunning
         )
@@ -47,10 +48,14 @@ fun TimerScreen(
 }
 
 @Composable
-fun TimerText(
-    onStartPause: (List<Period>) -> Unit,
+fun CurrentPeriodInfo(period: Period?) {
+    period?.name?.let { Text(text = it) }
+}
+
+@Composable
+fun Timer(
+    onStartPause: () -> Unit,
     onStop: () -> Unit,
-    periods: List<Period>,
     timerValue: Int,
     isRunning: Boolean
 ) {
@@ -73,7 +78,7 @@ fun TimerText(
                     .size(64.dp)
                     .padding(4.dp)
                     .graphicsLayer { rotationY = rotation.value }
-                    .clickable(onClick = { onStartPause(periods) }),
+                    .clickable(onClick = { onStartPause() }),
                 shape = CircleShape,
                 elevation = 4.dp,
                 backgroundColor = MaterialTheme.colors.primary
@@ -113,20 +118,4 @@ fun getTimerText(duration: Int): String {
 
 fun formattedNumber(number: Int): String {
     return number.toString().padStart(2, '0')
-}
-
-@InternalCoroutinesApi
-fun getPeriods(chartViewModel: ChartViewModel): List<Period> {
-    val chart = chartViewModel.selectedChart
-    val periods = mutableListOf<Period>()
-    chart?.let {
-        if (it.preparationTime > 0) {
-            periods.add(Period(name = it.headerPreparation, time = it.preparationTime))
-        }
-        for (i in 0..(it.repeat)) {
-            periods.add(Period(name = it.headerAction, time = it.actionTime))
-            if (it.restTime > 0) periods.add(Period(name = it.headerRest, time = it.restTime))
-        }
-    }
-    return periods
 }

@@ -28,8 +28,6 @@ fun BottomNavGraph(
     timerViewModel: TimerViewModel,
     chartViewModel: ChartViewModel
 ) {
-    val timerValue = timerViewModel.timerValue.collectAsState().value
-    val isRunning = timerViewModel.isRunning.collectAsState().value
     var direction = FORWARD
     var currentScreen = remember { mutableStateOf(BottomBarScreen.Timer.route).value }
     AnimatedNavHost(
@@ -51,11 +49,7 @@ fun BottomNavGraph(
         ) {
             currentScreen = BottomBarScreen.Timer.route
             TimerScreen(
-                chartViewModel = chartViewModel,
-                onStartPause = timerViewModel::toggleStartPause,
-                onStop = timerViewModel::stop,
-                timerValue = timerValue,
-                isRunning = isRunning
+                timerViewModel = timerViewModel
             )
         }
         composable(
@@ -64,12 +58,10 @@ fun BottomNavGraph(
             exitTransition = { exitAnimation(direction) }
         ) {
             currentScreen = BottomBarScreen.Saved.route
-            val charts = chartViewModel.charts.observeAsState().value
             SavedScreen(
                 navController = navController,
                 timerViewModel = timerViewModel,
-                charts = charts,
-                onClick = chartViewModel::selectChart
+                chartViewModel = chartViewModel
             )
         }
         composable(

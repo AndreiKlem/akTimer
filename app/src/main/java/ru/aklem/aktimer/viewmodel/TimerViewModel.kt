@@ -9,6 +9,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import ru.aklem.aktimer.R
+import ru.aklem.aktimer.data.Chart
 import ru.aklem.aktimer.misc.Period
 
 class TimerViewModel(application: Application) : AndroidViewModel(application) {
@@ -24,6 +25,9 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
     private var _isRunning = MutableStateFlow(false)
     val isRunning = _isRunning.asStateFlow()
 
+    private var _periods = mutableListOf<Period>()
+    private var _currentPeriod = MutableStateFlow<Period?>(null)
+    val currentPeriod = _currentPeriod.asStateFlow()
     private var index = 0
 
     init {
@@ -33,14 +37,17 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
             .build()
     }
 
-    fun toggleStartPause(periods: List<Period>) {
+    fun toggleStartPause() {
         initSound()
-        val amountOfPeriods = periods.size - 1
+        val amountOfPeriods = _periods.size - 1
         if (!_isRunning.value && amountOfPeriods > 0) {
             _isRunning.value = true
-            if (_timerValue.value == 0 && index == 0) _timerValue.value = periods[index].time
+            if (_timerValue.value == 0 && index == 0) {
+                _timerValue.value = _periods[0].time
+            }
             job?.cancel()
             job = viewModelScope.launch(Dispatchers.Default) {
+                delay(1000L)
                 while (isActive) {
                     if (_timerValue.value <= 0) {
                         if (index == amountOfPeriods) {
@@ -50,7 +57,8 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
                             releaseSoundPool()
                         } else {
                             index += 1
-                            _timerValue.value = periods[index].time
+                            _timerValue.value = _periods[index].time
+                            _currentPeriod.value = _periods[index]
                         }
                     }
                     if (_timerValue.value > 0) _timerValue.value--
@@ -80,6 +88,19 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
         index = 0
         _timerValue.value = 0
         if (_isRunning.value) _isRunning.value = false
+    }
+
+    fun setTimerPeriods(chart: Chart) {
+        if (_periods.isNotEmpty()) _periods.clear()
+        _timerValue.value = if (chart.preparationTime > 0) chart.preparationTime else chart.actionTime
+        if (chart.preparationTime > 0) {
+            _periods.add(Period(name = chart.headerPreparation, time = chart.preparationTime))
+        }
+        for (i in 0..(chart.repeat)) {
+            _periods.add(Period(name = chart.headerAction, time = chart.actionTime))
+            if (chart.restTime > 0) _periods.add(Period(name = chart.headerRest, time = chart.restTime))
+        }
+        _currentPeriod.value = _periods[0]
     }
 
     private fun releaseSoundPool() {

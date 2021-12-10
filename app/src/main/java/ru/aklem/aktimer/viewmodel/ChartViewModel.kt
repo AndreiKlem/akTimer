@@ -26,7 +26,7 @@ class ChartViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     val charts = _charts
-    var selectedChart = charts.value?.get(0)
+    var selectedChart: Chart? = null
 
     private var _title = MutableStateFlow(chart.title)
     val title = _title.asStateFlow()
@@ -92,8 +92,8 @@ class ChartViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun selectChart(index: Int) {
-        selectedChart = charts.value?.get(index)
+    fun onSelectChart(chart: Chart) {
+        selectedChart = chart
     }
 
     private fun resetChart() {

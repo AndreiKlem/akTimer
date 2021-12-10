@@ -1,5 +1,7 @@
 package ru.aklem.aktimer.screens
 
+import android.content.ContentValues.TAG
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -8,6 +10,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -18,17 +21,20 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import kotlinx.coroutines.InternalCoroutinesApi
 import ru.aklem.aktimer.R
 import ru.aklem.aktimer.data.Chart
+import ru.aklem.aktimer.viewmodel.ChartViewModel
 import ru.aklem.aktimer.viewmodel.TimerViewModel
 
+@InternalCoroutinesApi
 @Composable
 fun SavedScreen(
     navController: NavController,
     timerViewModel: TimerViewModel,
-    charts: List<Chart>?,
-    onClick: (Int) -> Unit
+    chartViewModel: ChartViewModel,
 ) {
+    val charts = chartViewModel.charts.observeAsState().value
     if (charts.isNullOrEmpty()) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -43,16 +49,18 @@ fun SavedScreen(
         }
     } else {
         LazyColumn(
-            modifier = Modifier.padding(vertical = 4.dp).fillMaxSize(),
+            modifier = Modifier
+                .padding(vertical = 4.dp)
+                .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            itemsIndexed(items = charts) { index, chart ->
+            itemsIndexed(items = charts) { _, chart ->
                 ChartCard(
                     navController = navController,
-                    onChartSelected = timerViewModel::stop,
+                    stopTimerOnChartSelected = timerViewModel::stop,
                     chart = chart,
-                    index = index,
-                    onClick = onClick
+                    onSelectChart = chartViewModel::onSelectChart,
+                    setTimerPeriods = timerViewModel::setTimerPeriods
                 )
             }
         }
@@ -62,18 +70,19 @@ fun SavedScreen(
 @Composable
 fun ChartCard(
     navController: NavController,
-    onChartSelected: () -> Unit,
+    stopTimerOnChartSelected: () -> Unit,
     chart: Chart,
-    index: Int,
-    onClick: (Int) -> Unit
+    onSelectChart: (Chart) -> Unit,
+    setTimerPeriods: (Chart) -> Unit
 ) {
     Card(
         modifier = Modifier
             .padding(horizontal = 8.dp, vertical = 4.dp)
             .fillMaxWidth()
             .clickable {
-                onChartSelected()
-                onClick(index)
+                stopTimerOnChartSelected()
+                setTimerPeriods(chart)
+                onSelectChart(chart)
                 navController.navigate("timer")
             },
     ) {
