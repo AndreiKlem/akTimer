@@ -1,6 +1,6 @@
 package ru.aklem.aktimer.screens
 
-import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.*
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -21,7 +21,6 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.InternalCoroutinesApi
 import ru.aklem.aktimer.R
 import ru.aklem.aktimer.misc.Period
-import ru.aklem.aktimer.viewmodel.ChartViewModel
 import ru.aklem.aktimer.viewmodel.TimerViewModel
 
 @InternalCoroutinesApi
@@ -33,23 +32,40 @@ fun TimerScreen(
     val timerValue = timerViewModel.timerValue.collectAsState().value
     val isRunning = timerViewModel.isRunning.collectAsState().value
     val currentPeriod = timerViewModel.currentPeriod.collectAsState().value
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        CurrentPeriodInfo(period = currentPeriod)
-        Timer(
-            onStartPause = timerViewModel::toggleStartPause,
-            onStop = timerViewModel::stop,
-            timerValue = timerValue,
-            isRunning = isRunning
-        )
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        Box(contentAlignment = Alignment.Center) {
+            Timer(
+                onStartPause = timerViewModel::toggleStartPause,
+                onStop = timerViewModel::stop,
+                timerValue = timerValue,
+                isRunning = isRunning
+            )
+        }
+        Box(modifier = Modifier.padding(top = 32.dp)) {
+            CurrentPeriodInfo(period = currentPeriod, isRunning = isRunning)
+        }
     }
 }
 
+@ExperimentalAnimationApi
 @Composable
-fun CurrentPeriodInfo(period: Period?) {
-    period?.name?.let { Text(text = it) }
+fun CurrentPeriodInfo(period: Period?, isRunning: Boolean) {
+    period?.let { p ->
+        AnimatedContent(targetState = p, transitionSpec = {
+            if (isRunning) {
+                slideInVertically(initialOffsetY = { height -> height }) + fadeIn() with
+                        slideOutVertically(targetOffsetY = { height -> -height }) + fadeOut()
+            } else {
+                slideInVertically(initialOffsetY = { height -> -height }) + fadeIn() with
+                        slideOutVertically(targetOffsetY = { height -> height }) + fadeOut()
+            }
+        }) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                Text(text = "${it.name}: ${getHeaderTime(it.time)}")
+            }
+        }
+    }
 }
 
 @Composable
@@ -71,7 +87,7 @@ fun Timer(
         Row {
             val rotation = animateFloatAsState(
                 targetValue = if (isRunning) 180f else 0f,
-                animationSpec = tween(durationMillis = 400, easing = FastOutSlowInEasing)
+                animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing)
             )
             Card(
                 modifier = Modifier
@@ -85,7 +101,7 @@ fun Timer(
             ) {
                 Image(
                     painter = painterResource(
-                        id = if (rotation.value <= 90) R.drawable.ic_play else R.drawable.ic_pause
+                        id = if (rotation.value < 90) R.drawable.ic_play else R.drawable.ic_pause
                     ),
                     contentDescription = "Play Button"
                 )
@@ -118,4 +134,10 @@ fun getTimerText(duration: Int): String {
 
 fun formattedNumber(number: Int): String {
     return number.toString().padStart(2, '0')
+}
+
+fun getHeaderTime(duration: Int): String {
+    val min = duration / 60
+    val sec = duration % 60
+    return "${if (min > 0) "$min min " else ""}${if (sec > 0) "$sec sec" else ""}"
 }

@@ -54,6 +54,7 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
                             job?.cancel()
                             index = 0
                             _isRunning.value = false
+                            _currentPeriod.value = _periods[0]
                             releaseSoundPool()
                         } else {
                             index += 1
@@ -75,19 +76,13 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private fun initSound() {
-        if (soundPool == null) {
-            soundPool = SoundPool.Builder().setAudioAttributes(audioAttributes).build()
-            sound = soundPool?.load(getApplication(), R.raw.double_beep, 1)
-        }
-    }
-
     fun stop() {
         releaseSoundPool()
         job?.cancel()
         index = 0
         _timerValue.value = 0
         if (_isRunning.value) _isRunning.value = false
+        if (_periods.isNotEmpty()) _currentPeriod.value = _periods[0]
     }
 
     fun setTimerPeriods(chart: Chart) {
@@ -101,6 +96,13 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
             if (chart.restTime > 0) _periods.add(Period(name = chart.headerRest, time = chart.restTime))
         }
         _currentPeriod.value = _periods[0]
+    }
+
+    private fun initSound() {
+        if (soundPool == null) {
+            soundPool = SoundPool.Builder().setAudioAttributes(audioAttributes).build()
+            sound = soundPool?.load(getApplication(), R.raw.double_beep, 1)
+        }
     }
 
     private fun releaseSoundPool() {
