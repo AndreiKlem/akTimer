@@ -2,6 +2,7 @@ package ru.aklem.aktimer
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
@@ -19,6 +20,7 @@ import ru.aklem.aktimer.screens.TimerScreen
 import ru.aklem.aktimer.viewmodel.ChartViewModel
 import ru.aklem.aktimer.viewmodel.TimerViewModel
 
+@ExperimentalFoundationApi
 @InternalCoroutinesApi
 @ExperimentalAnimationApi
 @Composable

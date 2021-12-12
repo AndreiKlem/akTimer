@@ -1,6 +1,7 @@
 package ru.aklem.aktimer
 
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
@@ -19,6 +20,7 @@ import kotlinx.coroutines.InternalCoroutinesApi
 import ru.aklem.aktimer.viewmodel.ChartViewModel
 import ru.aklem.aktimer.viewmodel.TimerViewModel
 
+@ExperimentalFoundationApi
 @InternalCoroutinesApi
 @ExperimentalAnimationApi
 @Composable
