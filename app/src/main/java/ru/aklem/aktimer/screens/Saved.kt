@@ -1,7 +1,5 @@
 package ru.aklem.aktimer.screens
 
-import android.content.ContentValues.TAG
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -93,14 +91,18 @@ fun ChartCard(
                 style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold)
             )
             if (chart.preparationTime > 0) {
-                Text(text = "${chart.headerPreparation} ${getTimerText(chart.preparationTime)}")
+                GetPeriodDescription(
+                    header = chart.headerPreparation,
+                    time = chart.preparationTime,
+                    case = chart.playPreparationSound
+                )
             }
             Row(
                 modifier = Modifier.height(intrinsicSize = IntrinsicSize.Max),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                if (chart.repeat > 1) {
-                    Text(text = "${chart.repeat}X ")
+                if (chart.repeat > 0) {
+                    Text(text = "${chart.repeat + 1}X ")
                     Image(
                         painter = painterResource(id = R.drawable.ic_curly_brace),
                         contentDescription = null,
@@ -108,12 +110,31 @@ fun ChartCard(
                     )
                 }
                 Column {
-                    Text(text = "${chart.headerAction} ${getTimerText(chart.actionTime)}")
+                    GetPeriodDescription(
+                        header = chart.headerAction,
+                        time = chart.actionTime,
+                        case = chart.playActionSound
+                    )
                     if (chart.restTime > 0) {
-                        Text(text = "${chart.headerRest} ${getTimerText(chart.restTime)}")
+                        GetPeriodDescription(
+                            header = chart.headerRest,
+                            time = chart.restTime,
+                            case = chart.playRestSound
+                        )
                     }
                 }
             }
         }
+    }
+}
+
+@Composable
+fun GetPeriodDescription(header: String, time: Int, case: Boolean) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(text = "$header ${getTimerText(time)}")
+        if (case) Image(
+            painter = painterResource(id = R.drawable.ic_note),
+            contentDescription = "With sound"
+        )
     }
 }

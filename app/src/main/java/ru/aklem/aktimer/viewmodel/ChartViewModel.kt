@@ -3,14 +3,18 @@ package ru.aklem.aktimer.viewmodel
 import android.app.Application
 import android.content.ContentValues.TAG
 import android.util.Log
-import androidx.lifecycle.*
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import ru.aklem.aktimer.data.Chart
 import ru.aklem.aktimer.data.ChartDatabase
 import ru.aklem.aktimer.data.ChartRepository
+import ru.aklem.aktimer.misc.ChartPeriods
 
 @InternalCoroutinesApi
 class ChartViewModel(application: Application) : AndroidViewModel(application) {
@@ -26,23 +30,26 @@ class ChartViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     val charts = _charts
-    var selectedChart: Chart? = null
+    private var selectedChart: Chart? = null
 
     private var _title = MutableStateFlow(chart.title)
     val title = _title.asStateFlow()
     private var _headerPreparation = MutableStateFlow(chart.headerPreparation)
     val headerPreparation = _headerPreparation.asStateFlow()
-    private var _prepareTime = MutableStateFlow(chart.preparationTime)
-    val prepareTime = _prepareTime.asStateFlow()
     private var _headerAction = MutableStateFlow(chart.headerAction)
     val headerAction = _headerAction.asStateFlow()
-    private var _actionTime = MutableStateFlow(chart.actionTime)
-    val actionTime = _actionTime.asStateFlow()
     private var _headerRest = MutableStateFlow(chart.headerRest)
     val headerRest = _headerRest.asStateFlow()
+    private var _prepareTime = MutableStateFlow(chart.preparationTime)
+    val prepareTime = _prepareTime.asStateFlow()
+    private var _actionTime = MutableStateFlow(chart.actionTime)
+    val actionTime = _actionTime.asStateFlow()
     private var _restTime = MutableStateFlow(chart.restTime)
     val restTime = _restTime.asStateFlow()
     private var _repeat = MutableStateFlow(chart.repeat)
+    private var _playPreparationSound = MutableStateFlow(chart.playPreparationSound)
+    private var _playActionSound = MutableStateFlow(chart.playActionSound)
+    private var _playRestSound = MutableStateFlow(chart.playRestSound)
     val repeat = _repeat.asStateFlow()
 
     fun onTitleChange(newTitle: String) {
@@ -73,6 +80,22 @@ class ChartViewModel(application: Application) : AndroidViewModel(application) {
         _restTime.value = minutes * 60 + seconds
     }
 
+    fun onPlaySoundChange(key: ChartPeriods) {
+        when(key) {
+            ChartPeriods.PREPARATION -> _playPreparationSound.value = !_playPreparationSound.value
+            ChartPeriods.ACTION -> _playActionSound.value = !_playActionSound.value
+            ChartPeriods.REST -> _playRestSound.value = !_playRestSound.value
+        }
+    }
+
+    fun getPlaySoundStatus(key: ChartPeriods): StateFlow<Boolean> {
+        return when(key) {
+            ChartPeriods.PREPARATION -> _playPreparationSound.asStateFlow()
+            ChartPeriods.ACTION -> _playActionSound.asStateFlow()
+            ChartPeriods.REST -> _playRestSound.asStateFlow()
+        }
+    }
+
     fun onRepeatChange(sets: String) {
         _repeat.value = sets.toInt()
     }
@@ -87,6 +110,9 @@ class ChartViewModel(application: Application) : AndroidViewModel(application) {
                 actionTime = actionTime.value,
                 headerRest = headerRest.value,
                 restTime = restTime.value,
+                playPreparationSound = _playPreparationSound.value,
+                playActionSound = _playActionSound.value,
+                playRestSound = _playRestSound.value,
                 repeat = repeat.value
             ))
         }
@@ -96,13 +122,13 @@ class ChartViewModel(application: Application) : AndroidViewModel(application) {
         selectedChart = chart
     }
 
-    private fun resetChart() {
+    fun resetChart() {
         _title.value = ""
         _headerPreparation.value = ""
-        _prepareTime.value = 0
         _headerAction.value = ""
-        _actionTime.value = 0
         _headerRest.value = ""
+        _prepareTime.value = 0
+        _actionTime.value = 0
         _restTime.value = 0
         _repeat.value = 0
     }

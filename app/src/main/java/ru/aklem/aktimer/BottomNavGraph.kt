@@ -4,7 +4,6 @@ import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.navigation.NavHostController
@@ -94,6 +93,8 @@ fun BottomNavGraph(
                 onHeaderRestChange = chartViewModel::onHeaderRestChange,
                 restTime = restTime,
                 onRestTimeChange = chartViewModel::onRestTimeChange,
+                onPlaySoundChange = chartViewModel::onPlaySoundChange,
+                playSound = chartViewModel::getPlaySoundStatus,
                 sets = sets,
                 onSetsAmountChange = chartViewModel::onRepeatChange,
                 createChart = chartViewModel::createChart

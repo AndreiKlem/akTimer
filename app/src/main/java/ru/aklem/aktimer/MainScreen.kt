@@ -1,10 +1,13 @@
 package ru.aklem.aktimer
 
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -27,11 +30,13 @@ fun MainScreen(
     Scaffold(
         bottomBar = { BottomBar(navController = navController) }
     ) {
-        BottomNavGraph(
-            navController = navController,
-            timerViewModel = timerViewModel,
-            chartViewModel = chartViewModel
-        )
+        Box(modifier = Modifier.padding(it)) {
+            BottomNavGraph(
+                navController = navController,
+                timerViewModel = timerViewModel,
+                chartViewModel = chartViewModel
+            )
+        }
     }
 }
 

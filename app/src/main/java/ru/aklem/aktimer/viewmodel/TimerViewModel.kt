@@ -39,7 +39,7 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
 
     fun toggleStartPause() {
         initSound()
-        val amountOfPeriods = _periods.size - 1
+        val amountOfPeriods = _periods.size
         if (!_isRunning.value && amountOfPeriods > 0) {
             _isRunning.value = true
             if (_timerValue.value == 0 && index == 0) {
@@ -50,7 +50,7 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
                 delay(1000L)
                 while (isActive) {
                     if (_timerValue.value <= 0) {
-                        if (index == amountOfPeriods) {
+                        if (index == amountOfPeriods - 1) {
                             job?.cancel()
                             index = 0
                             _isRunning.value = false
@@ -63,7 +63,7 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
                         }
                     }
                     if (_timerValue.value > 0) _timerValue.value--
-                    if (_timerValue.value == 0) sound?.let {
+                    if (_timerValue.value == 0 && _currentPeriod.value?.playSound == true) sound?.let {
                         soundPool?.play(it, 1f, 1f, 0, 0, 1f)
                     }
                     delay(1000L)
@@ -89,11 +89,29 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
         if (_periods.isNotEmpty()) _periods.clear()
         _timerValue.value = if (chart.preparationTime > 0) chart.preparationTime else chart.actionTime
         if (chart.preparationTime > 0) {
-            _periods.add(Period(name = chart.headerPreparation, time = chart.preparationTime))
+            _periods.add(
+                Period(
+                    name = chart.headerPreparation,
+                    time = chart.preparationTime,
+                    playSound = chart.playPreparationSound
+                )
+            )
         }
         for (i in 0..(chart.repeat)) {
-            _periods.add(Period(name = chart.headerAction, time = chart.actionTime))
-            if (chart.restTime > 0) _periods.add(Period(name = chart.headerRest, time = chart.restTime))
+            _periods.add(
+                Period(
+                    name = chart.headerAction,
+                    time = chart.actionTime,
+                    playSound = chart.playActionSound
+                )
+            )
+            if (chart.restTime > 0) _periods.add(
+                Period(
+                    name = chart.headerRest,
+                    time = chart.restTime,
+                    playSound = chart.playRestSound
+                )
+            )
         }
         _currentPeriod.value = _periods[0]
     }

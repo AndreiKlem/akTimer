@@ -19,8 +19,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import kotlinx.coroutines.flow.StateFlow
 import ru.aklem.aktimer.R
+import ru.aklem.aktimer.misc.ChartPeriods
 import ru.aklem.aktimer.ui.theme.setsBackground
+import kotlin.reflect.KFunction1
 
 @ExperimentalAnimationApi
 @Composable
@@ -40,10 +43,15 @@ fun CreateScreen(
     onHeaderRestChange: (String) -> Unit,
     restTime: Int,
     onRestTimeChange: (Int, Int) -> Unit,
+    onPlaySoundChange: (ChartPeriods) -> Unit,
+    playSound: KFunction1<ChartPeriods, StateFlow<Boolean>>,
     sets: Int,
     onSetsAmountChange: (String) -> Unit,
     createChart: () -> Unit
 ) {
+    val playPreparationSound = playSound(ChartPeriods.PREPARATION).collectAsState().value
+    val playActionSound = playSound(ChartPeriods.ACTION).collectAsState().value
+    val playRestSound = playSound(ChartPeriods.REST).collectAsState().value
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -90,9 +98,30 @@ fun CreateScreen(
             onValueChange = { if (it.length < 40) onTitleChange(it) },
             singleLine = true
         )
-        PrepareCard(headerPrepare, onHeaderPrepareChange, prepareTime, onPrepareTimeChange)
-        ActionCard(headerAction, onHeaderActionChange, actionTime, onActionTimeChange)
-        RestCard(headerRest, onHeaderRestChange, restTime, onRestTimeChange)
+        PrepareCard(
+            headerPrepare,
+            onHeaderPrepareChange,
+            prepareTime,
+            onPrepareTimeChange,
+            onPlaySoundChange,
+            playPreparationSound
+        )
+        ActionCard(
+            headerAction,
+            onHeaderActionChange,
+            actionTime,
+            onActionTimeChange,
+            onPlaySoundChange,
+            playActionSound
+        )
+        RestCard(
+            headerRest,
+            onHeaderRestChange,
+            restTime,
+            onRestTimeChange,
+            onPlaySoundChange,
+            playRestSound
+        )
         RepeatCard(sets, onSetsAmountChange)
     }
 }
@@ -102,8 +131,7 @@ fun checkInput(title: String, actionTime: Int): Int {
     if (title.isBlank()) {
         result = 2
 
-    }
-    else if (actionTime <= 0) result = 3
+    } else if (actionTime <= 0) result = 3
     return result
 }
 
@@ -112,13 +140,18 @@ fun PrepareCard(
     headerPrepare: String,
     onHeaderPrepareChange: (String) -> Unit,
     prepareTime: Int,
-    onPrepareTimeChange: (Int, Int) -> Unit
+    onPrepareTimeChange: (Int, Int) -> Unit,
+    onPlaySoundChange: (ChartPeriods) -> Unit,
+    playPreparationSound: Boolean
 ) {
     CardTemplate(
+        period = ChartPeriods.PREPARATION,
         header = headerPrepare,
         onHeaderChange = onHeaderPrepareChange,
         time = prepareTime,
-        onTimeChange = onPrepareTimeChange
+        onTimeChange = onPrepareTimeChange,
+        onPlaySoundChange = onPlaySoundChange,
+        playSound = playPreparationSound,
     )
 }
 
@@ -127,14 +160,19 @@ fun ActionCard(
     headerAction: String,
     onHeaderActionChange: (String) -> Unit,
     actionTime: Int,
-    onActionTimeChange: (Int, Int) -> Unit
+    onActionTimeChange: (Int, Int) -> Unit,
+    onPlaySoundChange: (ChartPeriods) -> Unit,
+    playActionSound: Boolean
 ) {
     val topShape = RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp)
     CardTemplate(
+        period = ChartPeriods.ACTION,
         header = headerAction,
         onHeaderChange = onHeaderActionChange,
         time = actionTime,
         onTimeChange = onActionTimeChange,
+        onPlaySoundChange = onPlaySoundChange,
+        playSound = playActionSound,
         cornersShape = topShape,
         cardBackground = setsBackground
     )
@@ -145,14 +183,19 @@ fun RestCard(
     headerRest: String,
     onHeaderRestChange: (String) -> Unit,
     restTime: Int,
-    onRestTimeChange: (Int, Int) -> Unit
+    onRestTimeChange: (Int, Int) -> Unit,
+    onPlaySoundChange: (ChartPeriods) -> Unit,
+    playRestSound: Boolean
 ) {
     val middleShape = RoundedCornerShape(0.dp)
     CardTemplate(
+        period = ChartPeriods.REST,
         header = headerRest,
         onHeaderChange = onHeaderRestChange,
         time = restTime,
         onTimeChange = onRestTimeChange,
+        onPlaySoundChange = onPlaySoundChange,
+        playSound = playRestSound,
         cornersShape = middleShape,
         cardBackground = setsBackground
     )
@@ -198,14 +241,16 @@ fun RepeatCard(sets: Int, onSetsAmountChange: (String) -> Unit) {
 
 @Composable
 fun CardTemplate(
+    period: ChartPeriods,
     header: String,
     onHeaderChange: (String) -> Unit,
     time: Int,
     onTimeChange: (Int, Int) -> Unit,
+    onPlaySoundChange: (ChartPeriods) -> Unit,
+    playSound: Boolean,
     cornersShape: RoundedCornerShape = RoundedCornerShape(8.dp),
     cardBackground: Color = MaterialTheme.colors.background
 ) {
-    var soundOn by remember { mutableStateOf(true) }
     val minutes = time / 60
     val seconds = time % 60
     Card(
@@ -241,8 +286,12 @@ fun CardTemplate(
                     modifier = Modifier
                         .padding(top = 4.dp)
                         .weight(0.1f)
-                        .clickable(onClick = { soundOn = !soundOn }),
-                    painter = painterResource(id = if (soundOn) R.drawable.ic_sound else R.drawable.ic_sound_off),
+                        .clickable(onClick = {
+                            onPlaySoundChange(period)
+                        }),
+                    painter = painterResource(
+                        id = if (playSound) R.drawable.ic_sound_on else R.drawable.ic_sound_off
+                    ),
                     colorFilter = ColorFilter.tint(color = Color.Black),
                     contentDescription = "Play sound when time expires"
                 )

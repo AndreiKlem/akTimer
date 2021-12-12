@@ -59,7 +59,7 @@ fun CurrentPeriodInfo(period: Period?, isRunning: Boolean) {
             } else {
                 slideInVertically(initialOffsetY = { height -> -height }) + fadeIn() with
                         slideOutVertically(targetOffsetY = { height -> height }) + fadeOut()
-            }
+            }.using(SizeTransform(clip = false))
         }) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
                 Text(text = "${it.name}: ${getHeaderTime(it.time)}")
