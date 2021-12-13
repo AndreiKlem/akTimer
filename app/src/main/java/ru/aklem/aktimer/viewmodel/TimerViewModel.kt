@@ -22,6 +22,10 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
     private var _timerValue = MutableStateFlow(0)
     val timerValue = _timerValue.asStateFlow()
 
+    private var _progressTime = MutableStateFlow(0)
+    val progressTime = _progressTime.asStateFlow()
+    var progressStartTime = 0
+
     private var _isRunning = MutableStateFlow(false)
     val isRunning = _isRunning.asStateFlow()
 
@@ -56,13 +60,17 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
                             _isRunning.value = false
                             _currentPeriod.value = _periods[0]
                             releaseSoundPool()
+                            setProgressTime()
                         } else {
                             index += 1
                             _timerValue.value = _periods[index].time
                             _currentPeriod.value = _periods[index]
                         }
                     }
-                    if (_timerValue.value > 0) _timerValue.value--
+                    if (_timerValue.value > 0) {
+                        _timerValue.value--
+                        _progressTime.value--
+                    }
                     if (_timerValue.value == 0 && _currentPeriod.value?.playSound == true) sound?.let {
                         soundPool?.play(it, 1f, 1f, 0, 0, 1f)
                     }
@@ -83,11 +91,13 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
         _timerValue.value = 0
         if (_isRunning.value) _isRunning.value = false
         if (_periods.isNotEmpty()) _currentPeriod.value = _periods[0]
+        setProgressTime()
     }
 
     fun setTimerPeriods(chart: Chart) {
         if (_periods.isNotEmpty()) _periods.clear()
-        _timerValue.value = if (chart.preparationTime > 0) chart.preparationTime else chart.actionTime
+        _timerValue.value =
+            if (chart.preparationTime > 0) chart.preparationTime else chart.actionTime
         if (chart.preparationTime > 0) {
             _periods.add(
                 Period(
@@ -114,6 +124,12 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
             )
         }
         _currentPeriod.value = _periods[0]
+        setProgressTime()
+    }
+
+    private fun setProgressTime() {
+        _progressTime.value = _periods.fold(0) { acc, period -> acc + period.time }
+        progressStartTime = _progressTime.value
     }
 
     private fun initSound() {

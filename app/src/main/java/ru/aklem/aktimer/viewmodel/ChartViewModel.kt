@@ -1,8 +1,6 @@
 package ru.aklem.aktimer.viewmodel
 
 import android.app.Application
-import android.content.ContentValues.TAG
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
@@ -30,7 +28,7 @@ class ChartViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     val charts = _charts
-    private var selectedChart: Chart? = null
+    var selectedChart: Chart? = null
 
     private var _title = MutableStateFlow(chart.title)
     val title = _title.asStateFlow()
@@ -115,6 +113,14 @@ class ChartViewModel(application: Application) : AndroidViewModel(application) {
                 playRestSound = _playRestSound.value,
                 repeat = repeat.value
             ))
+        }
+    }
+
+    fun insertTestChartsToDatabase(chartList: List<Chart>) {
+        viewModelScope.launch {
+            for (item in chartList) {
+                repository.addChart(item)
+            }
         }
     }
 

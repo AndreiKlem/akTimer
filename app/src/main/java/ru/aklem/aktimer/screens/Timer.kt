@@ -5,33 +5,45 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.InternalCoroutinesApi
 import ru.aklem.aktimer.R
 import ru.aklem.aktimer.misc.Period
+import ru.aklem.aktimer.viewmodel.ChartViewModel
 import ru.aklem.aktimer.viewmodel.TimerViewModel
 
 @InternalCoroutinesApi
 @ExperimentalAnimationApi
 @Composable
 fun TimerScreen(
-    timerViewModel: TimerViewModel
+    timerViewModel: TimerViewModel,
+    chartViewModel: ChartViewModel
 ) {
     val timerValue = timerViewModel.timerValue.collectAsState().value
     val isRunning = timerViewModel.isRunning.collectAsState().value
     val currentPeriod = timerViewModel.currentPeriod.collectAsState().value
+    val progressBarTime = timerViewModel.progressTime.collectAsState().value
+    val progressStartTime = timerViewModel.progressStartTime
+    val title = chartViewModel.selectedChart?.title
 
     Box(modifier = Modifier.fillMaxSize()) {
         Box(contentAlignment = Alignment.Center) {
@@ -42,8 +54,17 @@ fun TimerScreen(
                 isRunning = isRunning
             )
         }
-        Box(modifier = Modifier.padding(top = 32.dp)) {
-            CurrentPeriodInfo(period = currentPeriod, isRunning = isRunning)
+        Column(modifier = Modifier.padding(top = 32.dp), horizontalAlignment = CenterHorizontally) {
+            title?.let {
+                Text(
+                    text = it,
+                    modifier = Modifier.padding(bottom = 8.dp),
+                    style = TextStyle(fontWeight = FontWeight.Bold)
+                )
+                CurrentPeriodInfo(period = currentPeriod, isRunning = isRunning)
+                Spacer(Modifier.height(16.dp))
+                TotalProgressBar(progressBarTime, progressStartTime)
+            }
         }
     }
 }
@@ -77,7 +98,7 @@ fun Timer(
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
+        horizontalAlignment = CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Text(
@@ -123,6 +144,27 @@ fun Timer(
                 )
             }
         }
+    }
+}
+
+@Composable
+fun TotalProgressBar(time: Int, start: Int) {
+    val fraction by animateFloatAsState(targetValue = time.toFloat() / start, animationSpec = tween(1000))
+    Box(
+        modifier = Modifier
+            .fillMaxWidth(0.8f)
+            .height(8.dp)
+            .background(color = Color.LightGray, shape = RoundedCornerShape(8.dp))
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxHeight()
+                .fillMaxWidth(fraction = fraction)
+                .background(
+                    color = MaterialTheme.colors.primaryVariant,
+                    shape = RoundedCornerShape(8.dp)
+                )
+        )
     }
 }
 

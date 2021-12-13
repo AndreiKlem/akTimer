@@ -50,7 +50,8 @@ fun BottomNavGraph(
         ) {
             currentScreen = BottomBarScreen.Timer.route
             TimerScreen(
-                timerViewModel = timerViewModel
+                timerViewModel = timerViewModel,
+                chartViewModel = chartViewModel
             )
         }
         composable(

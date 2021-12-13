@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material.Button
 import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -28,6 +29,7 @@ import androidx.navigation.NavController
 import kotlinx.coroutines.InternalCoroutinesApi
 import ru.aklem.aktimer.R
 import ru.aklem.aktimer.data.Chart
+import ru.aklem.aktimer.misc.getTestCharts
 import ru.aklem.aktimer.viewmodel.ChartViewModel
 import ru.aklem.aktimer.viewmodel.TimerViewModel
 
@@ -51,6 +53,12 @@ fun SavedScreen(
                 style = TextStyle(fontSize = 20.sp),
                 textAlign = TextAlign.Center
             )
+            Button(
+                modifier = Modifier.padding(top = 32.dp),
+                onClick = { chartViewModel.insertTestChartsToDatabase(getTestCharts()) }
+            ) {
+                Text(text = "Insert test data to database")
+            }
         }
     } else {
         if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT) {
@@ -126,8 +134,8 @@ fun ChartCard(
                 modifier = Modifier.height(intrinsicSize = IntrinsicSize.Max),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                if (chart.repeat > 0) {
-                    Text(text = "${chart.repeat + 1}X ")
+                if (chart.repeat > 1) {
+                    Text(text = "${chart.repeat}X ")
                     Image(
                         painter = painterResource(id = R.drawable.ic_curly_brace),
                         contentDescription = null,
