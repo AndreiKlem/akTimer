@@ -16,6 +16,7 @@ import ru.aklem.aktimer.misc.Directions.BACKWARDS
 import ru.aklem.aktimer.misc.Directions.FORWARD
 import ru.aklem.aktimer.screens.CreateScreen
 import ru.aklem.aktimer.screens.SavedScreen
+import ru.aklem.aktimer.screens.SettingsScreen
 import ru.aklem.aktimer.screens.TimerScreen
 import ru.aklem.aktimer.viewmodel.ChartViewModel
 import ru.aklem.aktimer.viewmodel.TimerViewModel
@@ -37,18 +38,15 @@ fun BottomNavGraph(
     ) {
         navController.addOnDestinationChangedListener { _, destination, _ ->
             val nextScreen = destination.route.toString()
-            direction = if (currentScreen == BottomBarScreen.Saved.route &&
-                nextScreen == BottomBarScreen.Create.route
-                || currentScreen == BottomBarScreen.Timer.route &&
-                nextScreen == BottomBarScreen.Saved.route) FORWARD
+            direction = if (getPosition(nextScreen) > getPosition(currentScreen)) FORWARD
             else BACKWARDS
+            currentScreen = nextScreen
         }
         composable(
             route = BottomBarScreen.Timer.route,
             enterTransition = { enterAnimation(BACKWARDS) },
             exitTransition = { exitAnimation(FORWARD) }
         ) {
-            currentScreen = BottomBarScreen.Timer.route
             TimerScreen(
                 timerViewModel = timerViewModel,
                 chartViewModel = chartViewModel
@@ -59,7 +57,6 @@ fun BottomNavGraph(
             enterTransition = { enterAnimation(direction) },
             exitTransition = { exitAnimation(direction) }
         ) {
-            currentScreen = BottomBarScreen.Saved.route
             SavedScreen(
                 navController = navController,
                 timerViewModel = timerViewModel,
@@ -68,10 +65,9 @@ fun BottomNavGraph(
         }
         composable(
             route = BottomBarScreen.Create.route,
-            enterTransition = { enterAnimation(FORWARD) },
-            exitTransition = { exitAnimation(BACKWARDS) }
+            enterTransition = { enterAnimation(direction) },
+            exitTransition = { exitAnimation(direction) }
         ) {
-            currentScreen = BottomBarScreen.Create.route
             val title = chartViewModel.title.collectAsState().value
             val headerPrepare = chartViewModel.headerPreparation.collectAsState().value
             val prepareTime = chartViewModel.prepareTime.collectAsState().value
@@ -103,6 +99,22 @@ fun BottomNavGraph(
                 createChart = chartViewModel::createChart
             )
         }
+        composable(
+            route = BottomBarScreen.Settings.route,
+            enterTransition = { enterAnimation(FORWARD) },
+            exitTransition = { exitAnimation(BACKWARDS) }
+        ) {
+            SettingsScreen()
+        }
+    }
+}
+
+private fun getPosition(route: String): Int {
+    return when (route) {
+        "timer" -> 1
+        "saved" -> 2
+        "create" -> 3
+        else -> 4
     }
 }
 

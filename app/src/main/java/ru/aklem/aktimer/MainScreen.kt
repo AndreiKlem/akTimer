@@ -47,7 +47,8 @@ fun BottomBar(navController: NavHostController) {
     val screens = listOf(
         BottomBarScreen.Timer,
         BottomBarScreen.Saved,
-        BottomBarScreen.Create
+        BottomBarScreen.Create,
+        BottomBarScreen.Settings
     )
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
@@ -57,7 +58,7 @@ fun BottomBar(navController: NavHostController) {
             AddItem(
                 screen = screen,
                 currentDestination = currentDestination,
-                navController = navController
+                navController = navController,
             )
         }
     }
@@ -67,7 +68,7 @@ fun BottomBar(navController: NavHostController) {
 fun RowScope.AddItem(
     screen: BottomBarScreen,
     currentDestination: NavDestination?,
-    navController: NavHostController
+    navController: NavHostController,
 ) {
     BottomNavigationItem(
         label = { Text(text = screen.title) },

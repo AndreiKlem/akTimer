@@ -20,4 +20,9 @@ sealed class BottomBarScreen(
         title = "Create",
         icon = R.drawable.ic_create
     )
+    object Settings: BottomBarScreen(
+        route = "settings",
+        title = "Settings",
+        icon = R.drawable.ic_settings
+    )
 }
