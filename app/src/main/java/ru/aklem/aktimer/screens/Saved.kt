@@ -22,7 +22,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -121,7 +121,12 @@ fun ChartCard(
             Text(
                 modifier = Modifier.align(Alignment.CenterHorizontally),
                 text = chart.title,
-                style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 1,
+                style = TextStyle(
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                )
             )
             if (chart.preparationTime > 0) {
                 GetPeriodDescription(
@@ -135,7 +140,7 @@ fun ChartCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 if (chart.repeat > 1) {
-                    Text(text = "${chart.repeat}X ")
+                    Text(modifier = Modifier.padding(end = 4.dp), text = "${chart.repeat}X ")
                     Image(
                         painter = painterResource(id = R.drawable.ic_curly_brace),
                         contentDescription = null,
@@ -163,28 +168,19 @@ fun ChartCard(
 
 @Composable
 fun GetPeriodDescription(header: String, time: Int, case: Boolean) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(text = header)
-        Row {
-            Text(text = getTimerText(time))
-            if (case) Image(
-                painter = painterResource(id = R.drawable.ic_note),
-                contentDescription = "With sound",
-                modifier = Modifier.align(Alignment.CenterVertically)
-            ) else Image(
-                painter = painterResource(id = R.drawable.ic_note),
-                contentDescription = null,
-                alpha = 0f,
-            )
-        }
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            modifier = Modifier.weight(1f).padding(end = 4.dp),
+            text = header,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+        Text(text = getTimerText(time))
+        Image(
+            painter = painterResource(id = R.drawable.ic_note),
+            alignment = Alignment.BottomCenter,
+            contentDescription = null,
+            alpha = if (case) 1f else 0f,
+        )
     }
-}
-
-@Preview
-@Composable
-fun GetPeriodDescriptionPreview() {
-    GetPeriodDescription(header = "Header", time = 150, case = true)
 }

@@ -85,6 +85,19 @@ fun getTestCharts(): List<Chart> {
             repeat = 1
         ),
         Chart(
+            title = "One repetition no sound",
+            headerPreparation = "Preparing",
+            headerAction = "Acting",
+            headerRest = "Resting",
+            playPreparationSound = false,
+            playActionSound = false,
+            playRestSound = false,
+            preparationTime = 3,
+            actionTime = 3,
+            restTime = 3,
+            repeat = 1
+        ),
+        Chart(
             title = "No repetitions test",
             headerPreparation = "Preparing",
             headerAction = "Acting",
@@ -92,7 +105,7 @@ fun getTestCharts(): List<Chart> {
             preparationTime = 5,
             actionTime = 5,
             restTime = 5,
-            repeat = 0
+            repeat = 1
         ),
         Chart(
             title = "Two repetitions test",

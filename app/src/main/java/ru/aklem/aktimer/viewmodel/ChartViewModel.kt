@@ -111,7 +111,7 @@ class ChartViewModel(application: Application) : AndroidViewModel(application) {
                 playPreparationSound = _playPreparationSound.value,
                 playActionSound = _playActionSound.value,
                 playRestSound = _playRestSound.value,
-                repeat = repeat.value
+                repeat = if (repeat.value > 1) repeat.value else 1
             ))
         }
     }

@@ -107,7 +107,7 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
                 )
             )
         }
-        for (i in 0..(chart.repeat)) {
+        for (i in 0 until(chart.repeat)) {
             _periods.add(
                 Period(
                     name = chart.headerAction,

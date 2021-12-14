@@ -2,6 +2,7 @@ package ru.aklem.aktimer.screens
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
@@ -63,7 +64,7 @@ fun TimerScreen(
                 )
                 CurrentPeriodInfo(period = currentPeriod, isRunning = isRunning)
                 Spacer(Modifier.height(16.dp))
-                TotalProgressBar(progressBarTime, progressStartTime)
+                TotalProgressBar(progressBarTime, progressStartTime, isRunning)
             }
         }
     }
@@ -148,8 +149,13 @@ fun Timer(
 }
 
 @Composable
-fun TotalProgressBar(time: Int, start: Int) {
-    val fraction by animateFloatAsState(targetValue = time.toFloat() / start, animationSpec = tween(1000))
+fun TotalProgressBar(time: Int, start: Int, isRunning: Boolean) {
+    val fraction by animateFloatAsState(
+        targetValue = time.toFloat() / start,
+        animationSpec = if (isRunning) tween(
+            durationMillis = 1000, easing = LinearEasing
+        ) else tween(durationMillis = 400)
+    )
     Box(
         modifier = Modifier
             .fillMaxWidth(0.8f)

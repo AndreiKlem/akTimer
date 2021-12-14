@@ -18,5 +18,5 @@ data class Chart(
     @ColumnInfo(name = "header_rest") val headerRest: String = "Rest",
     @ColumnInfo(name = "rest_time") val restTime: Int = 0,
     @ColumnInfo(name = "play_rest_sound") val playRestSound: Boolean = true,
-    @ColumnInfo(name = "repetitions_amount") val repeat: Int = 0
+    @ColumnInfo(name = "repetitions_amount") val repeat: Int = 1
 )
