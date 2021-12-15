@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
@@ -19,6 +20,7 @@ import ru.aklem.aktimer.screens.SavedScreen
 import ru.aklem.aktimer.screens.SettingsScreen
 import ru.aklem.aktimer.screens.TimerScreen
 import ru.aklem.aktimer.viewmodel.ChartViewModel
+import ru.aklem.aktimer.viewmodel.SettingsViewModel
 import ru.aklem.aktimer.viewmodel.TimerViewModel
 
 @ExperimentalFoundationApi
@@ -30,6 +32,7 @@ fun BottomNavGraph(
     timerViewModel: TimerViewModel,
     chartViewModel: ChartViewModel
 ) {
+    val settingsViewModel = hiltViewModel<SettingsViewModel>()
     var direction = FORWARD
     var currentScreen = remember { mutableStateOf(BottomBarScreen.Timer.route).value }
     AnimatedNavHost(
@@ -48,6 +51,7 @@ fun BottomNavGraph(
             exitTransition = { exitAnimation(FORWARD) }
         ) {
             TimerScreen(
+                settingsViewModel = settingsViewModel,
                 timerViewModel = timerViewModel,
                 chartViewModel = chartViewModel
             )
@@ -104,7 +108,7 @@ fun BottomNavGraph(
             enterTransition = { enterAnimation(FORWARD) },
             exitTransition = { exitAnimation(BACKWARDS) }
         ) {
-            SettingsScreen()
+            SettingsScreen(settingsViewModel)
         }
     }
 }

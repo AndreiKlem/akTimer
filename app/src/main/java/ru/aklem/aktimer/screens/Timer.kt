@@ -30,12 +30,14 @@ import kotlinx.coroutines.InternalCoroutinesApi
 import ru.aklem.aktimer.R
 import ru.aklem.aktimer.misc.Period
 import ru.aklem.aktimer.viewmodel.ChartViewModel
+import ru.aklem.aktimer.viewmodel.SettingsViewModel
 import ru.aklem.aktimer.viewmodel.TimerViewModel
 
 @InternalCoroutinesApi
 @ExperimentalAnimationApi
 @Composable
 fun TimerScreen(
+    settingsViewModel: SettingsViewModel,
     timerViewModel: TimerViewModel,
     chartViewModel: ChartViewModel
 ) {
@@ -45,6 +47,8 @@ fun TimerScreen(
     val progressBarTime = timerViewModel.progressTime.collectAsState().value
     val progressStartTime = timerViewModel.progressStartTime
     val title = chartViewModel.selectedChart?.title
+
+    val showTitle = settingsViewModel.showTitle.collectAsState(initial = true).value
 
     Box(modifier = Modifier.fillMaxSize()) {
         Box(contentAlignment = Alignment.Center) {
@@ -56,16 +60,18 @@ fun TimerScreen(
             )
         }
         Column(modifier = Modifier.padding(top = 32.dp), horizontalAlignment = CenterHorizontally) {
-            title?.let {
-                Text(
-                    text = it,
-                    modifier = Modifier.padding(bottom = 8.dp),
-                    style = TextStyle(fontWeight = FontWeight.Bold)
-                )
-                CurrentPeriodInfo(period = currentPeriod, isRunning = isRunning)
-                Spacer(Modifier.height(16.dp))
-                TotalProgressBar(progressBarTime, progressStartTime, isRunning)
-            }
+                title?.let {
+                    if (showTitle) {
+                        Text(
+                            text = it,
+                            modifier = Modifier.padding(bottom = 8.dp),
+                            style = TextStyle(fontWeight = FontWeight.Bold)
+                        )
+                    }
+                    CurrentPeriodInfo(period = currentPeriod, isRunning = isRunning)
+                    Spacer(Modifier.height(16.dp))
+                    TotalProgressBar(progressBarTime, progressStartTime, isRunning)
+                }
         }
     }
 }
