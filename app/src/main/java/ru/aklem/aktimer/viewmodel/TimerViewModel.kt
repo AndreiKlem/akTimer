@@ -1,23 +1,26 @@
 package ru.aklem.aktimer.viewmodel
 
-import android.app.Application
+import android.content.Context
 import android.media.AudioAttributes
 import android.media.SoundPool
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import ru.aklem.aktimer.R
 import ru.aklem.aktimer.data.Chart
 import ru.aklem.aktimer.misc.Period
+import javax.inject.Inject
 
-class TimerViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class TimerViewModel @Inject constructor(@ApplicationContext context: Context) : ViewModel() {
 
     private var job: Job? = null
     private var soundPool: SoundPool? = null
-    private var audioAttributes: AudioAttributes? = null
-    private var sound: Int? = null
+    private var sound: Int?
 
     private var _timerValue = MutableStateFlow(0)
     val timerValue = _timerValue.asStateFlow()
@@ -35,14 +38,21 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
     private var index = 0
 
     init {
-        audioAttributes = AudioAttributes.Builder()
+        val audioAttributes: AudioAttributes = AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
             .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
             .build()
+        soundPool = SoundPool.Builder().setAudioAttributes(audioAttributes).build()
+        sound = soundPool?.load(context, R.raw.double_beep, 1)
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        soundPool?.release()
+        soundPool = null
     }
 
     fun toggleStartPause() {
-        initSound()
         val amountOfPeriods = _periods.size
         if (!_isRunning.value && amountOfPeriods > 0) {
             _isRunning.value = true
@@ -59,7 +69,6 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
                             index = 0
                             _isRunning.value = false
                             _currentPeriod.value = _periods[0]
-                            releaseSoundPool()
                             setProgressTime()
                         } else {
                             index += 1
@@ -80,12 +89,10 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
         } else {
             job?.cancel()
             _isRunning.value = false
-            releaseSoundPool()
         }
     }
 
     fun stop() {
-        releaseSoundPool()
         job?.cancel()
         index = 0
         _timerValue.value = 0
@@ -107,7 +114,7 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
                 )
             )
         }
-        for (i in 0 until(chart.repeat)) {
+        for (i in 0 until (chart.repeat)) {
             _periods.add(
                 Period(
                     name = chart.headerAction,
@@ -130,17 +137,5 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
     private fun setProgressTime() {
         _progressTime.value = _periods.fold(0) { acc, period -> acc + period.time }
         progressStartTime = _progressTime.value
-    }
-
-    private fun initSound() {
-        if (soundPool == null) {
-            soundPool = SoundPool.Builder().setAudioAttributes(audioAttributes).build()
-            sound = soundPool?.load(getApplication(), R.raw.double_beep, 1)
-        }
-    }
-
-    private fun releaseSoundPool() {
-        soundPool?.release()
-        soundPool = null
     }
 }

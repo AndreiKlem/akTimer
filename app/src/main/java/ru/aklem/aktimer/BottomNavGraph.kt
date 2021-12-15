@@ -28,10 +28,10 @@ import ru.aklem.aktimer.viewmodel.TimerViewModel
 @ExperimentalAnimationApi
 @Composable
 fun BottomNavGraph(
-    navController: NavHostController,
-    timerViewModel: TimerViewModel,
-    chartViewModel: ChartViewModel
+    navController: NavHostController
 ) {
+    val timerViewModel = hiltViewModel<TimerViewModel>()
+    val chartViewModel = hiltViewModel<ChartViewModel>()
     val settingsViewModel = hiltViewModel<SettingsViewModel>()
     var direction = FORWARD
     var currentScreen = remember { mutableStateOf(BottomBarScreen.Timer.route).value }
@@ -51,9 +51,9 @@ fun BottomNavGraph(
             exitTransition = { exitAnimation(FORWARD) }
         ) {
             TimerScreen(
-                settingsViewModel = settingsViewModel,
                 timerViewModel = timerViewModel,
-                chartViewModel = chartViewModel
+                chartViewModel = chartViewModel,
+                settingsViewModel = settingsViewModel
             )
         }
         composable(

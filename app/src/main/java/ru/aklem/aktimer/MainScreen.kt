@@ -17,26 +17,19 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import kotlinx.coroutines.InternalCoroutinesApi
-import ru.aklem.aktimer.viewmodel.ChartViewModel
-import ru.aklem.aktimer.viewmodel.TimerViewModel
 
 @ExperimentalFoundationApi
 @InternalCoroutinesApi
 @ExperimentalAnimationApi
 @Composable
-fun MainScreen(
-    timerViewModel: TimerViewModel,
-    chartViewModel: ChartViewModel
-) {
+fun MainScreen() {
     val navController = rememberAnimatedNavController()
     Scaffold(
         bottomBar = { BottomBar(navController = navController) }
     ) {
         Box(modifier = Modifier.padding(it)) {
             BottomNavGraph(
-                navController = navController,
-                timerViewModel = timerViewModel,
-                chartViewModel = chartViewModel
+                navController = navController
             )
         }
     }

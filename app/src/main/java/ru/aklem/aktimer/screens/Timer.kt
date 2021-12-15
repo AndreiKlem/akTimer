@@ -61,7 +61,9 @@ fun TimerScreen(
             )
         }
         Column(
-            modifier = Modifier.padding(top = 32.dp).fillMaxWidth(),
+            modifier = Modifier
+                .padding(top = 32.dp)
+                .fillMaxWidth(),
             horizontalAlignment = CenterHorizontally
         ) {
                 title?.let {
