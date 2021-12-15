@@ -28,6 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.InternalCoroutinesApi
 import ru.aklem.aktimer.R
+import ru.aklem.aktimer.misc.AppSettings
 import ru.aklem.aktimer.misc.Period
 import ru.aklem.aktimer.viewmodel.ChartViewModel
 import ru.aklem.aktimer.viewmodel.SettingsViewModel
@@ -48,7 +49,7 @@ fun TimerScreen(
     val progressStartTime = timerViewModel.progressStartTime
     val title = chartViewModel.selectedChart?.title
 
-    val showTitle = settingsViewModel.showTitle.collectAsState(initial = true).value
+    val settings = settingsViewModel.appSettings.collectAsState(initial = AppSettings())
 
     Box(modifier = Modifier.fillMaxSize()) {
         Box(contentAlignment = Alignment.Center) {
@@ -59,18 +60,26 @@ fun TimerScreen(
                 isRunning = isRunning
             )
         }
-        Column(modifier = Modifier.padding(top = 32.dp), horizontalAlignment = CenterHorizontally) {
+        Column(
+            modifier = Modifier.padding(top = 32.dp).fillMaxWidth(),
+            horizontalAlignment = CenterHorizontally
+        ) {
                 title?.let {
-                    if (showTitle) {
+                    if (settings.value.showTitle) {
                         Text(
                             text = it,
                             modifier = Modifier.padding(bottom = 8.dp),
                             style = TextStyle(fontWeight = FontWeight.Bold)
                         )
                     }
-                    CurrentPeriodInfo(period = currentPeriod, isRunning = isRunning)
                     Spacer(Modifier.height(16.dp))
-                    TotalProgressBar(progressBarTime, progressStartTime, isRunning)
+                    if (settings.value.showPeriods) {
+                        CurrentPeriodInfo(period = currentPeriod, isRunning = isRunning)
+                    }
+                    Spacer(Modifier.height(16.dp))
+                    if (settings.value.showProgressBar) {
+                        TotalProgressBar(progressBarTime, progressStartTime, isRunning)
+                    }
                 }
         }
     }
@@ -115,7 +124,7 @@ fun Timer(
         Row {
             val rotation = animateFloatAsState(
                 targetValue = if (isRunning) 180f else 0f,
-                animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing)
+                animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing)
             )
             Card(
                 modifier = Modifier

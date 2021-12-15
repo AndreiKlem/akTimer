@@ -11,11 +11,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Job
+import ru.aklem.aktimer.misc.AppSettings
 import ru.aklem.aktimer.viewmodel.SettingsViewModel
 
 @Composable
 fun SettingsScreen(settingsViewModel: SettingsViewModel) {
-    val showTitle = settingsViewModel.showTitle.collectAsState(initial = true)
+    val settings = settingsViewModel.appSettings.collectAsState(initial = AppSettings())
     Column(
         Modifier
             .fillMaxSize()
@@ -25,18 +26,26 @@ fun SettingsScreen(settingsViewModel: SettingsViewModel) {
         Header(name = "Timer screen")
         SettingParameter(
             name = "Show selected timer title",
-            showTitle.value,
+            settings.value.showTitle,
             settingsViewModel::onShowTitleChange
         )
-//        SettingParameter(name = "Show selected timer periods")
-//        SettingParameter(name = "Show progress bar")
+        SettingParameter(
+            name = "Show selected timer periods",
+            settings.value.showPeriods,
+            settingsViewModel::onShowPeriodsChange
+        )
+        SettingParameter(
+            name = "Show progress bar",
+            settings.value.showProgressBar,
+            settingsViewModel::onShowProgressBar
+        )
         Spacer(modifier = Modifier.height(16.dp))
 
         Header(name = "Saved screen")
 //        SettingParameter(name = "Select some setting for this screen")
         Spacer(modifier = Modifier.height(16.dp))
 
-        Header(name = "Saved screen")
+        Header(name = "Create screen")
 //        SettingParameter(name = "Spinner as a time selector")
     }
 

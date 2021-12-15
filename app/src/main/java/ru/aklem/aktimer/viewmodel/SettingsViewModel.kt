@@ -12,9 +12,18 @@ class SettingsViewModel @Inject constructor(
     private val preferencesManager: PreferencesManager
 ): ViewModel() {
 
-    val showTitle = preferencesManager.showTitle
+    val appSettings = preferencesManager.settingsFlow
 
     fun onShowTitleChange(value: Boolean) = viewModelScope.launch {
         preferencesManager.updateShowTitle(value)
     }
+
+    fun onShowPeriodsChange(value: Boolean) = viewModelScope.launch {
+        preferencesManager.updateShowPeriods(value)
+    }
+
+    fun onShowProgressBar(value: Boolean) = viewModelScope.launch {
+        preferencesManager.updateShowProgressBar(value)
+    }
 }
+

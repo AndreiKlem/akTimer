@@ -11,6 +11,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
+import ru.aklem.aktimer.misc.AppSettings
 import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -23,7 +24,7 @@ class PreferencesManager @Inject constructor(@ApplicationContext context: Contex
     private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
     private val dataStore = context.dataStore
 
-    val showTitle = dataStore.data
+    val settingsFlow = dataStore.data
         .catch { exception ->
             if (exception is IOException) {
                 Log.e(TAG, "Error reading preferences", exception)
@@ -33,16 +34,29 @@ class PreferencesManager @Inject constructor(@ApplicationContext context: Contex
             }
         }
         .map { preferences ->
-            preferences[PreferencesKeys.SHOW_TITLE] ?: true
+            val showTitle = preferences[PreferencesKeys.SHOW_TITLE] ?: true
+            val showPeriods = preferences[PreferencesKeys.SHOW_PERIODS] ?: true
+            val showProgressBar = preferences[PreferencesKeys.SHOW_PROGRESS_BAR] ?: true
+            AppSettings(showTitle, showPeriods, showProgressBar)
         }
 
     suspend fun updateShowTitle(showTitle: Boolean) {
+        dataStore.edit { preferences -> preferences[PreferencesKeys.SHOW_TITLE] = showTitle }
+    }
+
+    suspend fun updateShowPeriods(showPeriods: Boolean) {
+        dataStore.edit { preferences -> preferences[PreferencesKeys.SHOW_PERIODS] = showPeriods }
+    }
+
+    suspend fun updateShowProgressBar(showProgressBar: Boolean) {
         dataStore.edit { preferences ->
-            preferences[PreferencesKeys.SHOW_TITLE] = showTitle
+            preferences[PreferencesKeys.SHOW_PROGRESS_BAR] = showProgressBar
         }
     }
 
     private object PreferencesKeys {
         val SHOW_TITLE = booleanPreferencesKey(name = "show_title")
+        val SHOW_PERIODS = booleanPreferencesKey(name = "show_periods")
+        val SHOW_PROGRESS_BAR = booleanPreferencesKey(name = "show_progress_bar")
     }
 }
