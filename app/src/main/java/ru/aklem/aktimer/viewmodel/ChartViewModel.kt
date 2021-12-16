@@ -33,52 +33,54 @@ class ChartViewModel(application: Application) : AndroidViewModel(application) {
     private var _title = MutableStateFlow(chart.title)
     val title = _title.asStateFlow()
     private var _headerPreparation = MutableStateFlow(chart.headerPreparation)
-    val headerPreparation = _headerPreparation.asStateFlow()
     private var _headerAction = MutableStateFlow(chart.headerAction)
-    val headerAction = _headerAction.asStateFlow()
     private var _headerRest = MutableStateFlow(chart.headerRest)
-    val headerRest = _headerRest.asStateFlow()
-    private var _prepareTime = MutableStateFlow(chart.preparationTime)
-    val prepareTime = _prepareTime.asStateFlow()
+    private var _preparationTime = MutableStateFlow(chart.preparationTime)
     private var _actionTime = MutableStateFlow(chart.actionTime)
-    val actionTime = _actionTime.asStateFlow()
     private var _restTime = MutableStateFlow(chart.restTime)
-    val restTime = _restTime.asStateFlow()
-    private var _repeat = MutableStateFlow(chart.repeat)
     private var _playPreparationSound = MutableStateFlow(chart.playPreparationSound)
     private var _playActionSound = MutableStateFlow(chart.playActionSound)
     private var _playRestSound = MutableStateFlow(chart.playRestSound)
+    private var _repeat = MutableStateFlow(chart.repeat)
     val repeat = _repeat.asStateFlow()
 
-    fun onTitleChange(newTitle: String) {
+    fun onSetTitle(newTitle: String) {
         _title.value = newTitle
     }
 
-    fun onHeaderPrepareChange(newHeader: String) {
-        _headerPreparation.value = newHeader
+    fun onSetHeader(key: ChartPeriods, header: String) {
+        when(key) {
+            ChartPeriods.PREPARATION -> _headerPreparation.value = header
+            ChartPeriods.ACTION -> _headerAction.value = header
+            ChartPeriods.REST -> _headerRest.value = header
+        }
     }
 
-    fun onPrepareTimeChange(minutes: Int, seconds: Int) {
-        _prepareTime.value = minutes * 60 + seconds
+    fun getHeader(key: ChartPeriods): StateFlow<String> {
+        return when(key) {
+            ChartPeriods.PREPARATION -> _headerPreparation.asStateFlow()
+            ChartPeriods.ACTION -> _headerAction.asStateFlow()
+            ChartPeriods.REST -> _headerRest.asStateFlow()
+        }
     }
 
-    fun onHeaderActionChange(newHeader: String) {
-        _headerAction.value = newHeader
+    fun onSetTime(key: ChartPeriods, minutes: Int, seconds: Int) {
+        when(key) {
+            ChartPeriods.PREPARATION -> _preparationTime.value = minutes * 60 + seconds
+            ChartPeriods.ACTION -> _actionTime.value = minutes * 60 + seconds
+            ChartPeriods.REST -> _restTime.value = minutes * 60 + seconds
+        }
     }
 
-    fun onActionTimeChange(minutes: Int, seconds: Int) {
-        _actionTime.value = minutes * 60 + seconds
+    fun getTime(key: ChartPeriods): StateFlow<Int> {
+        return when(key) {
+            ChartPeriods.PREPARATION -> _preparationTime.asStateFlow()
+            ChartPeriods.ACTION -> _actionTime.asStateFlow()
+            ChartPeriods.REST -> _restTime.asStateFlow()
+        }
     }
 
-    fun onHeaderRestChange(newHeader: String) {
-        _headerRest.value = newHeader
-    }
-
-    fun onRestTimeChange(minutes: Int, seconds: Int) {
-        _restTime.value = minutes * 60 + seconds
-    }
-
-    fun onPlaySoundChange(key: ChartPeriods) {
+    fun onSetPlaySound(key: ChartPeriods) {
         when(key) {
             ChartPeriods.PREPARATION -> _playPreparationSound.value = !_playPreparationSound.value
             ChartPeriods.ACTION -> _playActionSound.value = !_playActionSound.value
@@ -86,7 +88,7 @@ class ChartViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun getPlaySoundStatus(key: ChartPeriods): StateFlow<Boolean> {
+    fun getPlaySound(key: ChartPeriods): StateFlow<Boolean> {
         return when(key) {
             ChartPeriods.PREPARATION -> _playPreparationSound.asStateFlow()
             ChartPeriods.ACTION -> _playActionSound.asStateFlow()
@@ -94,7 +96,7 @@ class ChartViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun onRepeatChange(sets: String) {
+    fun onSetRepeat(sets: String) {
         _repeat.value = sets.toInt()
     }
 
@@ -102,12 +104,12 @@ class ChartViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             repository.addChart(Chart(
                 title = title.value,
-                headerPreparation = headerPreparation.value,
-                preparationTime = prepareTime.value,
-                headerAction = headerAction.value,
-                actionTime = actionTime.value,
-                headerRest = headerRest.value,
-                restTime = restTime.value,
+                headerPreparation = _headerPreparation.value,
+                headerAction = _headerAction.value,
+                headerRest = _headerRest.value,
+                preparationTime = _preparationTime.value,
+                actionTime = _actionTime.value,
+                restTime = _restTime.value,
                 playPreparationSound = _playPreparationSound.value,
                 playActionSound = _playActionSound.value,
                 playRestSound = _playRestSound.value,
@@ -126,16 +128,5 @@ class ChartViewModel(application: Application) : AndroidViewModel(application) {
 
     fun onSelectChart(chart: Chart) {
         selectedChart = chart
-    }
-
-    fun resetChart() {
-        _title.value = ""
-        _headerPreparation.value = ""
-        _headerAction.value = ""
-        _headerRest.value = ""
-        _prepareTime.value = 0
-        _actionTime.value = 0
-        _restTime.value = 0
-        _repeat.value = 0
     }
 }
