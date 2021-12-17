@@ -141,11 +141,13 @@ fun ChartCard(
             ) {
                 if (chart.repeat > 1) {
                     Text(modifier = Modifier.padding(end = 4.dp), text = "${chart.repeat}X ")
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_curly_brace),
-                        contentDescription = null,
-                        contentScale = ContentScale.Fit
-                    )
+                    if (chart.restTime > 0) {
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_curly_brace),
+                            contentDescription = null,
+                            contentScale = ContentScale.Fit
+                        )
+                    }
                 }
                 Column {
                     GetPeriodDescription(

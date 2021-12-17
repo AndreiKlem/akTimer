@@ -44,11 +44,11 @@ class ChartViewModel(application: Application) : AndroidViewModel(application) {
     private var _repeat = MutableStateFlow(chart.repeat)
     val repeat = _repeat.asStateFlow()
 
-    fun onSetTitle(newTitle: String) {
+    fun onTitleChange(newTitle: String) {
         _title.value = newTitle
     }
 
-    fun onSetHeader(key: ChartPeriods, header: String) {
+    fun onHeaderChange(key: ChartPeriods, header: String) {
         when(key) {
             ChartPeriods.PREPARATION -> _headerPreparation.value = header
             ChartPeriods.ACTION -> _headerAction.value = header
@@ -64,7 +64,7 @@ class ChartViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun onSetTime(key: ChartPeriods, minutes: Int, seconds: Int) {
+    fun onTimeChange(key: ChartPeriods, minutes: Int, seconds: Int) {
         when(key) {
             ChartPeriods.PREPARATION -> _preparationTime.value = minutes * 60 + seconds
             ChartPeriods.ACTION -> _actionTime.value = minutes * 60 + seconds
@@ -96,8 +96,8 @@ class ChartViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun onSetRepeat(sets: String) {
-        _repeat.value = sets.toInt()
+    fun onRepeatChange(sets: Int) {
+        _repeat.value = sets
     }
 
     fun createChart() {

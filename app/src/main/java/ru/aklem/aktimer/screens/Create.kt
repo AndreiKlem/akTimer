@@ -1,24 +1,32 @@
 package ru.aklem.aktimer.screens
 
 import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Popup
 import androidx.navigation.NavController
 import kotlinx.coroutines.flow.StateFlow
 import ru.aklem.aktimer.R
@@ -31,15 +39,15 @@ import ru.aklem.aktimer.ui.theme.setsBackground
 fun CreateScreen(
     navController: NavController,
     title: String,
-    onSetTitle: (String) -> Unit,
-    onSetHeader: (ChartPeriods, String) -> Unit,
+    onTitleChange: (String) -> Unit,
+    onHeaderChange: (ChartPeriods, String) -> Unit,
     header: (ChartPeriods) -> StateFlow<String>,
-    onSetTime: (ChartPeriods, Int, Int) -> Unit,
+    onTimeChange: (ChartPeriods, Int, Int) -> Unit,
     time: (ChartPeriods) -> StateFlow<Int>,
     onSetPlaySound: (ChartPeriods) -> Unit,
     playSound: (ChartPeriods) -> StateFlow<Boolean>,
     sets: Int,
-    onSetRepeat: (String) -> Unit,
+    onRepeatChange: (Int) -> Unit,
     createChart: () -> Unit
 ) {
     val preparationHeader = header(PREPARATION).collectAsState().value
@@ -94,34 +102,34 @@ fun CreateScreen(
                 .align(Alignment.CenterHorizontally),
             placeholder = { Text(text = "Please enter a title") },
             value = title,
-            onValueChange = { if (it.length < 40) onSetTitle(it) },
+            onValueChange = { if (it.length < 40) onTitleChange(it) },
             singleLine = true
         )
         PrepareCard(
             preparationHeader,
-            onSetHeader,
+            onHeaderChange,
             preparationTime,
-            onSetTime,
+            onTimeChange,
             onSetPlaySound,
             playPreparationSound
         )
         ActionCard(
             actionHeader,
-            onSetHeader,
+            onHeaderChange,
             actionTime,
-            onSetTime,
+            onTimeChange,
             onSetPlaySound,
             playActionSound
         )
         RestCard(
             restHeader,
-            onSetHeader,
+            onHeaderChange,
             restTime,
-            onSetTime,
+            onTimeChange,
             onSetPlaySound,
             playRestSound
         )
-        RepeatCard(sets, onSetRepeat)
+        RepeatCard(sets, onRepeatChange)
     }
 }
 
@@ -134,32 +142,34 @@ fun checkInput(title: String, actionTime: Int): Int {
     return result
 }
 
+@ExperimentalAnimationApi
 @Composable
 fun PrepareCard(
     headerPrepare: String,
-    onSetHeader: (ChartPeriods, String) -> Unit,
+    onHeaderChange: (ChartPeriods, String) -> Unit,
     prepareTime: Int,
-    onSetTime: (ChartPeriods, Int, Int) -> Unit,
+    onTimeChange: (ChartPeriods, Int, Int) -> Unit,
     onSetPlaySound: (ChartPeriods) -> Unit,
     playPreparationSound: Boolean
 ) {
     CardTemplate(
         period = PREPARATION,
         header = headerPrepare,
-        onSetHeader = onSetHeader,
+        onHeaderChange = onHeaderChange,
         time = prepareTime,
-        onSetTime = onSetTime,
+        onTimeChange = onTimeChange,
         onSetPlaySound = onSetPlaySound,
         playSound = playPreparationSound,
     )
 }
 
+@ExperimentalAnimationApi
 @Composable
 fun ActionCard(
     headerAction: String,
-    onSetHeader: (ChartPeriods, String) -> Unit,
+    onHeaderChange: (ChartPeriods, String) -> Unit,
     actionTime: Int,
-    onSetTime: (ChartPeriods, Int, Int) -> Unit,
+    onTimeChange: (ChartPeriods, Int, Int) -> Unit,
     onSetPlaySound: (ChartPeriods) -> Unit,
     playActionSound: Boolean
 ) {
@@ -167,9 +177,9 @@ fun ActionCard(
     CardTemplate(
         period = ACTION,
         header = headerAction,
-        onSetHeader = onSetHeader,
+        onHeaderChange = onHeaderChange,
         time = actionTime,
-        onSetTime = onSetTime,
+        onTimeChange = onTimeChange,
         onSetPlaySound = onSetPlaySound,
         playSound = playActionSound,
         cornersShape = topShape,
@@ -177,12 +187,13 @@ fun ActionCard(
     )
 }
 
+@ExperimentalAnimationApi
 @Composable
 fun RestCard(
     headerRest: String,
-    onSetHeader: (ChartPeriods, String) -> Unit,
+    onHeaderChange: (ChartPeriods, String) -> Unit,
     restTime: Int,
-    onSetTime: (ChartPeriods, Int, Int) -> Unit,
+    onTimeChange: (ChartPeriods, Int, Int) -> Unit,
     onSetPlaySound: (ChartPeriods) -> Unit,
     playRestSound: Boolean
 ) {
@@ -190,9 +201,9 @@ fun RestCard(
     CardTemplate(
         period = REST,
         header = headerRest,
-        onSetHeader = onSetHeader,
+        onHeaderChange = onHeaderChange,
         time = restTime,
-        onSetTime = onSetTime,
+        onTimeChange = onTimeChange,
         onSetPlaySound = onSetPlaySound,
         playSound = playRestSound,
         cornersShape = middleShape,
@@ -200,8 +211,10 @@ fun RestCard(
     )
 }
 
+@ExperimentalAnimationApi
 @Composable
-fun RepeatCard(sets: Int, onSetsAmountChange: (String) -> Unit) {
+fun RepeatCard(sets: Int, onSetsChange: (Int) -> Unit) {
+    val range = (1..99).toList()
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -214,37 +227,20 @@ fun RepeatCard(sets: Int, onSetsAmountChange: (String) -> Unit) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            Text(text = "Repeat")
-            OutlinedTextField(
-                modifier = Modifier
-                    .padding(start = 4.dp),
-                label = { Text(text = if (sets == 1) "time" else "times") },
-                placeholder = { Text(text = "max 99") },
-                value = if (sets == 0) "" else sets.toString(),
-                onValueChange = {
-                    onSetsAmountChange(
-                        when {
-                            it.toIntOrNull() == null -> "0"
-                            it.toInt() in 1..99 -> it
-                            it.toInt() > 99 -> "99"
-                            else -> "0"
-                        }
-                    )
-                },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-            )
+            Selector(range = range, value = sets, onValueChange = onSetsChange)
+            Text(modifier = Modifier.padding(start = 8.dp), text = if (sets > 1) "sets" else "set")
         }
     }
 }
 
+@ExperimentalAnimationApi
 @Composable
 fun CardTemplate(
     period: ChartPeriods,
     header: String,
-    onSetHeader: (ChartPeriods, String) -> Unit,
+    onHeaderChange: (ChartPeriods, String) -> Unit,
     time: Int,
-    onSetTime: (ChartPeriods, Int, Int) -> Unit,
+    onTimeChange: (ChartPeriods, Int, Int) -> Unit,
     onSetPlaySound: (ChartPeriods) -> Unit,
     playSound: Boolean,
     cornersShape: RoundedCornerShape = RoundedCornerShape(8.dp),
@@ -252,6 +248,7 @@ fun CardTemplate(
 ) {
     val minutes = time / 60
     val seconds = time % 60
+    val range = (0..59).toList()
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -259,65 +256,89 @@ fun CardTemplate(
         shape = cornersShape,
         backgroundColor = cardBackground
     ) {
-        Column(modifier = Modifier.padding(8.dp)) {
+        Row(modifier = Modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
             OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .padding(end = 8.dp),
                 placeholder = { Text(text = "Please enter a header") },
                 value = header,
-                onValueChange = { if (it.length < 40) onSetHeader(period, it) },
+                onValueChange = { if (it.length < 40) onHeaderChange(period, it) },
                 singleLine = true
             )
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                TimeInput(
-                    label = "Minutes",
-                    modifier = Modifier.weight(0.45f),
-                    time = minutes,
-                    onSetTime = { onSetTime(period, it.toInt(), seconds) }
-                )
-                Spacer(modifier = Modifier.padding(4.dp))
-                TimeInput(
-                    label = "Seconds",
-                    modifier = Modifier.weight(0.45f),
-                    time = seconds,
-                    onSetTime = { onSetTime(period, minutes, it.toInt()) }
-                )
-                Image(
-                    modifier = Modifier
-                        .padding(top = 4.dp)
-                        .weight(0.1f)
-                        .clickable(onClick = {
-                            onSetPlaySound(period)
-                        }),
-                    painter = painterResource(
-                        id = if (playSound) R.drawable.ic_sound_on else R.drawable.ic_sound_off
-                    ),
-                    colorFilter = ColorFilter.tint(color = Color.Black),
-                    contentDescription = "Play sound when time expires"
-                )
-            }
+            Selector(range = range, value = minutes, onValueChange = {
+                onTimeChange(period, it, seconds)
+            })
+            Text(text = " : ")
+            Selector(range = range, value = seconds, onValueChange = {
+                onTimeChange(period, minutes, it)
+            })
+            Spacer(modifier = Modifier.width(8.dp))
+            Image(
+                modifier = Modifier
+                    .weight(0.1f)
+                    .clickable(onClick = {
+                        onSetPlaySound(period)
+                    }),
+                painter = painterResource(
+                    id = if (playSound) R.drawable.ic_sound_on else R.drawable.ic_sound_off
+                ),
+                contentScale = ContentScale.None,
+                colorFilter = ColorFilter.tint(color = Color.Black),
+                contentDescription = "Play sound when time expires"
+            )
         }
     }
 }
 
+@ExperimentalAnimationApi
 @Composable
-fun TimeInput(label: String, modifier: Modifier, time: Int, onSetTime: (String) -> Unit) {
-    OutlinedTextField(
-        modifier = modifier,
-        label = { Text(text = label) },
-        placeholder = { Text(text = "max 59") },
-        value = if (time == 0) "" else time.toString(),
-        onValueChange = {
-            onSetTime(
-                when {
-                    it.toIntOrNull() == null -> "0"
-                    it.toInt() in 1..59 -> it
-                    it.toInt() > 59 -> "59"
-                    else -> "0"
+fun Selector(range: List<Int>, value: Int, onValueChange: (Int) -> Unit) {
+    val showPopup = remember { mutableStateOf(false) }
+    val doubleDigit = range.size == 60
+    Box {
+        Text(
+            text = if (doubleDigit) formattedNumber(value) else value.toString(),
+            fontSize = 24.sp,
+            modifier = Modifier.clickable { showPopup.value = true },
+        )
+        Popup(alignment = Alignment.Center, onDismissRequest = { showPopup.value = false }) {
+            AnimatedVisibility(
+                visible = showPopup.value,
+                enter = scaleIn(tween(100)),
+                exit = scaleOut(tween(100))
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(width = 60.dp, height = 180.dp)
+                        .background(color = Color.White, shape = RoundedCornerShape(10.dp))
+                ) {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        state = rememberLazyListState(
+                            initialFirstVisibleItemIndex = if (value > 0) value - 1 else value)
+                    ) {
+                        items(items = range) { item ->
+                            Text(
+                                text = if (doubleDigit) formattedNumber(item) else item.toString(),
+                                fontSize = 26.sp,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier
+                                    .padding(vertical = 4.dp)
+                                    .clickable {
+                                        onValueChange(item)
+                                        showPopup.value = false
+                                    }
+                            )
+                            if (item != 99) {
+                                Divider(modifier = Modifier.fillMaxWidth(0.6f), thickness = 1.dp)
+                            }
+                        }
+                    }
                 }
-            )
-        },
-        singleLine = true,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-    )
+            }
+        }
+    }
 }
-

@@ -77,15 +77,15 @@ fun BottomNavGraph(
             CreateScreen(
                 navController = navController,
                 title = title,
-                onSetTitle = chartViewModel::onSetTitle,
-                onSetHeader = chartViewModel::onSetHeader,
+                onTitleChange = chartViewModel::onTitleChange,
+                onHeaderChange = chartViewModel::onHeaderChange,
                 header = chartViewModel::getHeader,
-                onSetTime = chartViewModel::onSetTime,
+                onTimeChange = chartViewModel::onTimeChange,
                 time = chartViewModel::getTime,
                 onSetPlaySound = chartViewModel::onSetPlaySound,
                 playSound = chartViewModel::getPlaySound,
                 sets = sets,
-                onSetRepeat = chartViewModel::onSetRepeat,
+                onRepeatChange = chartViewModel::onRepeatChange,
                 createChart = chartViewModel::createChart
             )
         }
