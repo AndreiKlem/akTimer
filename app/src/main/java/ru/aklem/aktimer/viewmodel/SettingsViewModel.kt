@@ -25,5 +25,13 @@ class SettingsViewModel @Inject constructor(
     fun onShowProgressBar(value: Boolean) = viewModelScope.launch {
         preferencesManager.updateShowProgressBar(value)
     }
+
+    fun onShowPreparation(value: Boolean) = viewModelScope.launch {
+        preferencesManager.updateShowPreparation(value)
+    }
+
+    fun onShowRest(value: Boolean) = viewModelScope.launch {
+        preferencesManager.updateShowRest(value)
+    }
 }
 

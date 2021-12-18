@@ -79,9 +79,9 @@ class TimerViewModel @Inject constructor(@ApplicationContext context: Context) :
                     if (_timerValue.value > 0) {
                         _timerValue.value--
                         _progressTime.value--
-                    }
-                    if (_timerValue.value == 0 && _currentPeriod.value?.playSound == true) sound?.let {
-                        soundPool?.play(it, 1f, 1f, 0, 0, 1f)
+                        if (_timerValue.value == 0 && _currentPeriod.value?.playSound == true) {
+                            playSound()
+                        }
                     }
                     delay(1000L)
                 }
@@ -99,6 +99,12 @@ class TimerViewModel @Inject constructor(@ApplicationContext context: Context) :
         if (_isRunning.value) _isRunning.value = false
         if (_periods.isNotEmpty()) _currentPeriod.value = _periods[0]
         setProgressTime()
+    }
+
+    private fun playSound() {
+        sound?.let {
+            soundPool?.play(it, 1f, 1f, 0, 0, 1f)
+        }
     }
 
     fun setTimerPeriods(chart: Chart) {

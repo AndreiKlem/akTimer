@@ -10,11 +10,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.CenterHorizontally
+import androidx.compose.ui.Alignment.Companion.End
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -27,9 +26,11 @@ import androidx.compose.ui.window.Popup
 import androidx.navigation.NavController
 import kotlinx.coroutines.flow.StateFlow
 import ru.aklem.aktimer.R
+import ru.aklem.aktimer.misc.AppSettings
 import ru.aklem.aktimer.misc.ChartPeriods
 import ru.aklem.aktimer.misc.ChartPeriods.*
 import ru.aklem.aktimer.ui.theme.setsBackground
+import ru.aklem.aktimer.viewmodel.SettingsViewModel
 
 @ExperimentalAnimationApi
 @Composable
@@ -47,23 +48,24 @@ fun CreateScreen(
     sets: Int,
     onRepeatChange: (Int) -> Unit,
     updateChart: () -> Unit,
-    createChart: () -> Unit
+    createChart: () -> Unit,
+    settingsViewModel: SettingsViewModel
 ) {
-    val preparationHeader = header(PREPARATION).collectAsState().value
-    val actionHeader = header(ACTION).collectAsState().value
-    val restHeader = header(REST).collectAsState().value
-    val preparationTime = time(PREPARATION).collectAsState().value
-    val actionTime = time(ACTION).collectAsState().value
-    val restTime = time(REST).collectAsState().value
-    val playPreparationSound = playSound(PREPARATION).collectAsState().value
-    val playActionSound = playSound(ACTION).collectAsState().value
-    val playRestSound = playSound(REST).collectAsState().value
+    val preparationHeader by header(PREPARATION).collectAsState()
+    val actionHeader by header(ACTION).collectAsState()
+    val restHeader by header(REST).collectAsState()
+    val preparationTime by time(PREPARATION).collectAsState()
+    val actionTime by time(ACTION).collectAsState()
+    val restTime by time(REST).collectAsState()
+    val playPreparationSound by playSound(PREPARATION).collectAsState()
+    val playActionSound by playSound(ACTION).collectAsState()
+    val playRestSound by playSound(REST).collectAsState()
+    val settings = settingsViewModel.appSettings.collectAsState(initial = AppSettings())
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 8.dp, vertical = 4.dp)
-            .verticalScroll(state = rememberScrollState()),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .padding(horizontal = 8.dp, vertical = 4.dp),
+        horizontalAlignment = CenterHorizontally
     ) {
         Button(
             onClick = {
@@ -90,28 +92,30 @@ fun CreateScreen(
             },
             modifier = Modifier
                 .padding(end = 8.dp)
-                .align(Alignment.End)
+                .align(End)
         ) {
-            Text(text = if (tag == "edit") "Edit Timer" else "Create Timer")
+            Text(text = if (tag == "edit") "Apply changes" else "Create Timer")
         }
         OutlinedTextField(
             modifier = Modifier
                 .padding(horizontal = 8.dp, vertical = 4.dp)
                 .fillMaxWidth()
-                .align(Alignment.CenterHorizontally),
+                .align(CenterHorizontally),
             placeholder = { Text(text = "Please enter a title") },
             value = title,
             onValueChange = { if (it.length < 40) onTitleChange(it) },
             singleLine = true
         )
-        PrepareCard(
-            preparationHeader,
-            onHeaderChange,
-            preparationTime,
-            onTimeChange,
-            onSetPlaySound,
-            playPreparationSound
-        )
+        if (settings.value.showPreparation) {
+            PrepareCard(
+                preparationHeader,
+                onHeaderChange,
+                preparationTime,
+                onTimeChange,
+                onSetPlaySound,
+                playPreparationSound
+            )
+        }
         ActionCard(
             actionHeader,
             onHeaderChange,
@@ -120,14 +124,16 @@ fun CreateScreen(
             onSetPlaySound,
             playActionSound
         )
-        RestCard(
-            restHeader,
-            onHeaderChange,
-            restTime,
-            onTimeChange,
-            onSetPlaySound,
-            playRestSound
-        )
+        if (settings.value.showRest) {
+            RestCard(
+                restHeader,
+                onHeaderChange,
+                restTime,
+                onTimeChange,
+                onSetPlaySound,
+                playRestSound
+            )
+        }
         RepeatCard(sets, onRepeatChange)
     }
 }
@@ -318,9 +324,10 @@ fun Selector(range: List<Int>, value: Int, onValueChange: (Int) -> Unit) {
                 ) {
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
+                        horizontalAlignment = CenterHorizontally,
                         state = rememberLazyListState(
-                            initialFirstVisibleItemIndex = if (value > 0) value - 1 else value)
+                            initialFirstVisibleItemIndex = if (value > 0) value - 1 else value
+                        )
                     ) {
                         items(items = range) { item ->
                             Text(

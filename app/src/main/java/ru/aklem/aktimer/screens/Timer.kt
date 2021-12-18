@@ -26,6 +26,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.InternalCoroutinesApi
 import ru.aklem.aktimer.R
 import ru.aklem.aktimer.misc.AppSettings
@@ -71,7 +72,7 @@ fun TimerScreen(
                         Text(
                             text = it,
                             modifier = Modifier.padding(bottom = 8.dp),
-                            style = TextStyle(fontWeight = FontWeight.Bold)
+                            style = TextStyle(fontWeight = FontWeight.Thin, fontSize = 26.sp)
                         )
                     }
                     Spacer(Modifier.height(16.dp))

@@ -4,9 +4,6 @@ import android.content.ContentValues.TAG
 import android.content.res.Configuration
 import android.util.Log
 import androidx.compose.animation.*
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -37,6 +34,7 @@ import ru.aklem.aktimer.misc.getTestCharts
 import ru.aklem.aktimer.viewmodel.ChartViewModel
 import ru.aklem.aktimer.viewmodel.TimerViewModel
 
+@ExperimentalAnimationApi
 @ExperimentalFoundationApi
 @InternalCoroutinesApi
 @Composable
@@ -73,9 +71,33 @@ fun SavedScreen(
                     modifier = Modifier
                         .padding(vertical = 4.dp)
                         .fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    state = rememberLazyListState()
                 ) {
-                    items(items = charts) { item ->
+                    items(items = charts, key = { it.id }) { item ->
+                        Row(Modifier.animateItemPlacement(animationSpec = tween(300))) {
+                            ChartCard(
+                                navController = navController,
+                                coroutineScope = coroutineScope,
+                                scaffoldState = scaffoldState,
+                                stopTimerOnChartSelected = timerViewModel::stop,
+                                chart = item,
+                                onSelectChart = chartViewModel::onSelectChart,
+                                setTimerPeriods = timerViewModel::setTimerPeriods,
+                                onRestoreChart = chartViewModel::onRestoreChart,
+                                onEditChart = chartViewModel::onEditChart,
+                                onDeleteChart = chartViewModel::onDeleteChart
+                            )
+                        }
+                    }
+                }
+            } else {
+                LazyVerticalGrid(
+                    cells = GridCells.Fixed(2),
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(horizontal = 4.dp, vertical = 4.dp)
+                ) {
+                    itemsIndexed(items = charts) { _, item ->
                         ChartCard(
                             navController = navController,
                             coroutineScope = coroutineScope,
@@ -90,32 +112,12 @@ fun SavedScreen(
                         )
                     }
                 }
-            } else {
-                LazyVerticalGrid(
-                    cells = GridCells.Fixed(2),
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(horizontal = 4.dp, vertical = 4.dp)
-                ) {
-                    itemsIndexed(items = charts) { _, chart ->
-                        ChartCard(
-                            navController = navController,
-                            coroutineScope = coroutineScope,
-                            scaffoldState = scaffoldState,
-                            stopTimerOnChartSelected = timerViewModel::stop,
-                            chart = chart,
-                            onSelectChart = chartViewModel::onSelectChart,
-                            setTimerPeriods = timerViewModel::setTimerPeriods,
-                            onRestoreChart = chartViewModel::onRestoreChart,
-                            onEditChart = chartViewModel::onEditChart,
-                            onDeleteChart = chartViewModel::onDeleteChart
-                        )
-                    }
-                }
             }
         }
     }
 }
 
+@ExperimentalAnimationApi
 @Composable
 fun ChartCard(
     navController: NavController,
@@ -129,114 +131,105 @@ fun ChartCard(
     onEditChart: (Chart) -> Unit,
     onDeleteChart: (Chart) -> Unit
 ) {
-    val showFooter = remember { mutableStateOf(false) }
-    val isVisible = remember { mutableStateOf(true) }
-    AnimatedVisibility(
-        visible = isVisible.value,
-        enter = expandVertically(animationSpec = tween(300), expandFrom = Alignment.Top),
-        exit = shrinkVertically(animationSpec = tween(300), shrinkTowards = Alignment.Top)
+    var showFooter by remember { mutableStateOf(false) }
+    Card(
+        modifier = Modifier
+            .padding(horizontal = 4.dp, vertical = 4.dp)
+            .fillMaxWidth()
+            .animateContentSize(animationSpec = tween(400))
+            .clickable {
+                showFooter = !showFooter
+            }
     ) {
-        Card(
-            modifier = Modifier
-                .padding(horizontal = 4.dp, vertical = 4.dp)
-                .fillMaxWidth()
-                .animateContentSize()
-                .clickable {
-                    showFooter.value = !showFooter.value
-                }
-        ) {
-            Column(modifier = Modifier.padding(8.dp)) {
-                Text(
-                    modifier = Modifier.align(Alignment.CenterHorizontally),
-                    text = chart.title,
-                    overflow = TextOverflow.Ellipsis,
-                    maxLines = 1,
-                    style = TextStyle(
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+        Column(modifier = Modifier.padding(8.dp)) {
+            Text(
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+                text = chart.title,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 1,
+                style = TextStyle(
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
                 )
-                if (chart.preparationTime > 0) {
-                    GetPeriodDescription(
-                        header = chart.headerPreparation,
-                        time = chart.preparationTime,
-                        case = chart.playPreparationSound
-                    )
-                }
-                Row(
-                    modifier = Modifier.height(intrinsicSize = IntrinsicSize.Max),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    if (chart.repeat > 1) {
-                        Text(modifier = Modifier.padding(end = 4.dp), text = "${chart.repeat}X ")
-                        if (chart.restTime > 0) {
-                            Image(
-                                painter = painterResource(id = R.drawable.ic_curly_brace),
-                                contentDescription = null,
-                                contentScale = ContentScale.Fit
-                            )
-                        }
-                    }
-                    Column {
-                        GetPeriodDescription(
-                            header = chart.headerAction,
-                            time = chart.actionTime,
-                            case = chart.playActionSound
+            )
+            if (chart.preparationTime > 0) {
+                GetPeriodDescription(
+                    header = chart.headerPreparation,
+                    time = chart.preparationTime,
+                    case = chart.playPreparationSound
+                )
+            }
+            Row(
+                modifier = Modifier.height(intrinsicSize = IntrinsicSize.Max),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (chart.repeat > 1) {
+                    Text(modifier = Modifier.padding(end = 4.dp), text = "${chart.repeat}X ")
+                    if (chart.restTime > 0) {
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_curly_brace),
+                            contentDescription = null,
+                            contentScale = ContentScale.Fit
                         )
-                        if (chart.restTime > 0) {
-                            GetPeriodDescription(
-                                header = chart.headerRest,
-                                time = chart.restTime,
-                                case = chart.playRestSound
-                            )
-                        }
                     }
                 }
-                if (showFooter.value) {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceEvenly
-                    ) {
-                        Text(
-                            text = "Delete",
-                            color = MaterialTheme.colors.primary,
-                            modifier = Modifier.clickable {
-                                isVisible.value = false
-                                onDeleteChart(chart)
-                                coroutineScope.launch {
-                                    val snackBarResult =
-                                        scaffoldState.snackbarHostState.showSnackbar(
-                                            message = "Timer deleted",
-                                            actionLabel = "UNDO"
-                                        )
-                                    when (snackBarResult) {
-                                        SnackbarResult.Dismissed -> Log.d(TAG, "SnackBar dismissed")
-                                        SnackbarResult.ActionPerformed -> {
-                                            isVisible.value = true
-                                            onRestoreChart(chart)
-                                        }
+                Column {
+                    GetPeriodDescription(
+                        header = chart.headerAction,
+                        time = chart.actionTime,
+                        case = chart.playActionSound
+                    )
+                    if (chart.restTime > 0) {
+                        GetPeriodDescription(
+                            header = chart.headerRest,
+                            time = chart.restTime,
+                            case = chart.playRestSound
+                        )
+                    }
+                }
+            }
+            if (showFooter) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    Text(
+                        text = "Delete",
+                        color = MaterialTheme.colors.primary,
+                        modifier = Modifier.clickable {
+                            onDeleteChart(chart)
+                            coroutineScope.launch {
+                                val snackBarResult =
+                                    scaffoldState.snackbarHostState.showSnackbar(
+                                        message = "Timer deleted",
+                                        actionLabel = "UNDO"
+                                    )
+                                when (snackBarResult) {
+                                    SnackbarResult.Dismissed -> Log.d(TAG, "SnackBar dismissed")
+                                    SnackbarResult.ActionPerformed -> {
+                                        onRestoreChart(chart)
                                     }
                                 }
-                            })
-                        Text(
-                            text = "Edit",
-                            color = MaterialTheme.colors.primary,
-                            modifier = Modifier.clickable {
-                                onEditChart(chart)
-                                navController.navigate(route = "create/edit")
                             }
-                        )
-                        Text(
-                            text = "Select",
-                            color = MaterialTheme.colors.primary,
-                            modifier = Modifier.clickable {
-                                stopTimerOnChartSelected()
-                                setTimerPeriods(chart)
-                                onSelectChart(chart)
-                                navController.navigate("timer")
-                            })
-                    }
+                        })
+                    Text(
+                        text = "Edit",
+                        color = MaterialTheme.colors.primary,
+                        modifier = Modifier.clickable {
+                            onEditChart(chart)
+                            navController.navigate(route = "create/edit")
+                        }
+                    )
+                    Text(
+                        text = "Select",
+                        color = MaterialTheme.colors.primary,
+                        modifier = Modifier.clickable {
+                            stopTimerOnChartSelected()
+                            setTimerPeriods(chart)
+                            onSelectChart(chart)
+                            navController.navigate("timer")
+                        })
                 }
             }
         }

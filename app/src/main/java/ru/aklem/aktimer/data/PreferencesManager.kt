@@ -37,7 +37,9 @@ class PreferencesManager @Inject constructor(@ApplicationContext context: Contex
             val showTitle = preferences[PreferencesKeys.SHOW_TITLE] ?: true
             val showPeriods = preferences[PreferencesKeys.SHOW_PERIODS] ?: true
             val showProgressBar = preferences[PreferencesKeys.SHOW_PROGRESS_BAR] ?: true
-            AppSettings(showTitle, showPeriods, showProgressBar)
+            val showPreparation = preferences[PreferencesKeys.SHOW_PREPARATION] ?: true
+            val showRest = preferences[PreferencesKeys.SHOW_REST] ?: true
+            AppSettings(showTitle, showPeriods, showProgressBar, showPreparation, showRest)
         }
 
     suspend fun updateShowTitle(showTitle: Boolean) {
@@ -54,9 +56,23 @@ class PreferencesManager @Inject constructor(@ApplicationContext context: Contex
         }
     }
 
+    suspend fun updateShowPreparation(showPreparation: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.SHOW_PREPARATION] = showPreparation
+        }
+    }
+
+    suspend fun updateShowRest(showRest: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.SHOW_REST] = showRest
+        }
+    }
+
     private object PreferencesKeys {
         val SHOW_TITLE = booleanPreferencesKey(name = "show_title")
         val SHOW_PERIODS = booleanPreferencesKey(name = "show_periods")
         val SHOW_PROGRESS_BAR = booleanPreferencesKey(name = "show_progress_bar")
+        val SHOW_PREPARATION = booleanPreferencesKey(name = "show_preparation")
+        val SHOW_REST = booleanPreferencesKey(name = "show_rest")
     }
 }

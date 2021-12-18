@@ -91,7 +91,8 @@ fun BottomNavGraph(
                 sets = sets,
                 onRepeatChange = chartViewModel::onRepeatChange,
                 updateChart = chartViewModel::onUpdateChart,
-                createChart = chartViewModel::createChart
+                createChart = chartViewModel::createChart,
+                settingsViewModel = settingsViewModel
             )
         }
         composable(
@@ -108,7 +109,7 @@ private fun getPosition(route: String): Int {
     return when (route) {
         "timer" -> 1
         "saved" -> 2
-        "create" -> 3
+        "create/{tag}" -> 3
         else -> 4
     }
 }

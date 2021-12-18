@@ -46,7 +46,16 @@ fun SettingsScreen(settingsViewModel: SettingsViewModel) {
         Spacer(modifier = Modifier.height(16.dp))
 
         Header(name = "Create screen")
-//        SettingParameter(name = "Spinner as a time selector")
+        SettingParameter(
+            name = "Show preparation period",
+            settings.value.showPreparation,
+            settingsViewModel::onShowPreparation
+        )
+        SettingParameter(
+            name = "Show rest period",
+            setting = settings.value.showRest,
+            onClick = settingsViewModel::onShowRest
+        )
     }
 
 
