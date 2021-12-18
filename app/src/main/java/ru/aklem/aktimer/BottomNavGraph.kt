@@ -9,6 +9,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import kotlinx.coroutines.InternalCoroutinesApi
@@ -69,13 +71,15 @@ fun BottomNavGraph(
         }
         composable(
             route = BottomBarScreen.Create.route,
+            arguments = listOf(navArgument("tag") { type = NavType.StringType }),
             enterTransition = { enterAnimation(direction) },
             exitTransition = { exitAnimation(direction) }
-        ) {
+        ) {backStackEntry ->
             val title = chartViewModel.title.collectAsState().value
             val sets = chartViewModel.repeat.collectAsState().value
             CreateScreen(
                 navController = navController,
+                tag = backStackEntry.arguments?.getString("tag"),
                 title = title,
                 onTitleChange = chartViewModel::onTitleChange,
                 onHeaderChange = chartViewModel::onHeaderChange,
@@ -86,6 +90,7 @@ fun BottomNavGraph(
                 playSound = chartViewModel::getPlaySound,
                 sets = sets,
                 onRepeatChange = chartViewModel::onRepeatChange,
+                updateChart = chartViewModel::onUpdateChart,
                 createChart = chartViewModel::createChart
             )
         }

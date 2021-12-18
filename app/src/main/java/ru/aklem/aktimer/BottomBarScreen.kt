@@ -16,7 +16,7 @@ sealed class BottomBarScreen(
         icon = R.drawable.ic_saved
     )
     object Create: BottomBarScreen(
-        route = "create",
+        route = "create/{tag}",
         title = "Create",
         icon = R.drawable.ic_create
     )

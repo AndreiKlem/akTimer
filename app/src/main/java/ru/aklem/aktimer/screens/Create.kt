@@ -1,11 +1,8 @@
 package ru.aklem.aktimer.screens
 
 import android.widget.Toast
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -38,6 +35,7 @@ import ru.aklem.aktimer.ui.theme.setsBackground
 @Composable
 fun CreateScreen(
     navController: NavController,
+    tag: String?,
     title: String,
     onTitleChange: (String) -> Unit,
     onHeaderChange: (ChartPeriods, String) -> Unit,
@@ -48,6 +46,7 @@ fun CreateScreen(
     playSound: (ChartPeriods) -> StateFlow<Boolean>,
     sets: Int,
     onRepeatChange: (Int) -> Unit,
+    updateChart: () -> Unit,
     createChart: () -> Unit
 ) {
     val preparationHeader = header(PREPARATION).collectAsState().value
@@ -70,7 +69,7 @@ fun CreateScreen(
             onClick = {
                 when (checkInput(title, actionTime)) {
                     1 -> {
-                        createChart()
+                        if (tag == "edit") updateChart() else createChart()
                         navController.navigate("saved")
                     }
                     2 -> {
@@ -93,7 +92,7 @@ fun CreateScreen(
                 .padding(end = 8.dp)
                 .align(Alignment.End)
         ) {
-            Text(text = "Create Timer")
+            Text(text = if (tag == "edit") "Edit Timer" else "Create Timer")
         }
         OutlinedTextField(
             modifier = Modifier
@@ -228,7 +227,10 @@ fun RepeatCard(sets: Int, onSetsChange: (Int) -> Unit) {
             horizontalArrangement = Arrangement.Center
         ) {
             Selector(range = range, value = sets, onValueChange = onSetsChange)
-            Text(modifier = Modifier.padding(start = 8.dp), text = if (sets > 1) "sets" else "set")
+            Spacer(modifier = Modifier.width(8.dp))
+            Crossfade(targetState = sets) { sets ->
+                if (sets > 1) Text("sets") else Text("set")
+            }
         }
     }
 }
