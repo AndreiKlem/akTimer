@@ -30,7 +30,7 @@ class ChartViewModel(application: Application) : AndroidViewModel(application) {
     val charts = _charts
     var selectedChart: Chart? = null
 
-    private var id = 1
+    private var id = 0
     private var _title = MutableStateFlow(chart.title)
     val title = _title.asStateFlow()
     private var _headerPreparation = MutableStateFlow(chart.headerPreparation)

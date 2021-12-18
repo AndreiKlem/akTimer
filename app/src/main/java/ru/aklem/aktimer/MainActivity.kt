@@ -11,12 +11,12 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.InternalCoroutinesApi
 import ru.aklem.aktimer.ui.theme.AkTimerTheme
 
+@ExperimentalFoundationApi
+@InternalCoroutinesApi
 @AndroidEntryPoint
 @ExperimentalAnimationApi
 class MainActivity : ComponentActivity() {
 
-    @ExperimentalFoundationApi
-    @InternalCoroutinesApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
