@@ -1,5 +1,7 @@
 package ru.aklem.aktimer.screens
 
+import android.media.AudioAttributes
+import android.media.SoundPool
 import androidx.compose.animation.*
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
@@ -22,6 +24,7 @@ import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -49,7 +52,6 @@ fun TimerScreen(
     val progressBarTime = timerViewModel.progressTime.collectAsState().value
     val progressStartTime = timerViewModel.progressStartTime
     val title = chartViewModel.selectedChart?.title
-
     val settings = settingsViewModel.appSettings.collectAsState(initial = AppSettings())
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -67,23 +69,23 @@ fun TimerScreen(
                 .fillMaxWidth(),
             horizontalAlignment = CenterHorizontally
         ) {
-                title?.let {
-                    if (settings.value.showTitle) {
-                        Text(
-                            text = it,
-                            modifier = Modifier.padding(bottom = 8.dp),
-                            style = TextStyle(fontWeight = FontWeight.Thin, fontSize = 26.sp)
-                        )
-                    }
-                    Spacer(Modifier.height(16.dp))
-                    if (settings.value.showPeriods) {
-                        CurrentPeriodInfo(period = currentPeriod, isRunning = isRunning)
-                    }
-                    Spacer(Modifier.height(16.dp))
-                    if (settings.value.showProgressBar) {
-                        TotalProgressBar(progressBarTime, progressStartTime, isRunning)
-                    }
+            title?.let {
+                if (settings.value.showTitle) {
+                    Text(
+                        text = it,
+                        modifier = Modifier.padding(bottom = 8.dp),
+                        style = TextStyle(fontWeight = FontWeight.Thin, fontSize = 26.sp)
+                    )
                 }
+                Spacer(Modifier.height(16.dp))
+                if (settings.value.showPeriods) {
+                    CurrentPeriodInfo(period = currentPeriod, isRunning = isRunning)
+                }
+                Spacer(Modifier.height(16.dp))
+                if (settings.value.showProgressBar) {
+                    TotalProgressBar(progressBarTime, progressStartTime, isRunning)
+                }
+            }
         }
     }
 }

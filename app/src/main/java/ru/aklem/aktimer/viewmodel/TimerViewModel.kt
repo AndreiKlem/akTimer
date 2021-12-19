@@ -1,12 +1,13 @@
 package ru.aklem.aktimer.viewmodel
 
-import android.content.Context
+import android.app.Application
 import android.media.AudioAttributes
+import android.media.RingtoneManager
 import android.media.SoundPool
-import androidx.lifecycle.ViewModel
+import android.net.Uri
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,11 +17,9 @@ import ru.aklem.aktimer.misc.Period
 import javax.inject.Inject
 
 @HiltViewModel
-class TimerViewModel @Inject constructor(@ApplicationContext context: Context) : ViewModel() {
+class TimerViewModel @Inject constructor(application: Application) : AndroidViewModel(application) {
 
     private var job: Job? = null
-    private var soundPool: SoundPool? = null
-    private var sound: Int?
 
     private var _timerValue = MutableStateFlow(0)
     val timerValue = _timerValue.asStateFlow()
@@ -37,20 +36,14 @@ class TimerViewModel @Inject constructor(@ApplicationContext context: Context) :
     val currentPeriod = _currentPeriod.asStateFlow()
     private var index = 0
 
-    init {
-        val audioAttributes: AudioAttributes = AudioAttributes.Builder()
-            .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
-            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-            .build()
-        soundPool = SoundPool.Builder().setAudioAttributes(audioAttributes).build()
-        sound = soundPool?.load(context, R.raw.double_beep, 1)
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        soundPool?.release()
-        soundPool = null
-    }
+    // Prepare sound to play
+    private val audioAttributes: AudioAttributes = AudioAttributes.Builder()
+        .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
+        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+        .build()
+    private var soundPool = SoundPool.Builder().setAudioAttributes(audioAttributes).build()
+    private val sound = soundPool.load(application, R.raw.double_beep, 1)
+    private var ringtone: Uri? = null
 
     fun toggleStartPause() {
         val amountOfPeriods = _periods.size
@@ -102,8 +95,10 @@ class TimerViewModel @Inject constructor(@ApplicationContext context: Context) :
     }
 
     private fun playSound() {
-        sound?.let {
-            soundPool?.play(it, 1f, 1f, 0, 0, 1f)
+        if (ringtone == null) {
+            soundPool.play(sound, 1f, 1f, 0, 0, 1f)
+        } else {
+            RingtoneManager.getRingtone(getApplication(), ringtone).play()
         }
     }
 
@@ -144,4 +139,15 @@ class TimerViewModel @Inject constructor(@ApplicationContext context: Context) :
         _progressTime.value = _periods.fold(0) { acc, period -> acc + period.time }
         progressStartTime = _progressTime.value
     }
+
+    fun onRingtoneSet(uri: Uri?) {
+        ringtone = uri
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        soundPool?.release()
+        soundPool = null
+    }
+
 }
