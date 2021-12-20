@@ -14,15 +14,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import ru.aklem.aktimer.R
 import ru.aklem.aktimer.data.Chart
-import ru.aklem.aktimer.data.PreferencesManager
 import ru.aklem.aktimer.misc.Period
 import javax.inject.Inject
 
 @HiltViewModel
-class TimerViewModel @Inject constructor(
-    application: Application,
-    private val preferencesManager: PreferencesManager
-) : AndroidViewModel(application) {
+class TimerViewModel @Inject constructor(application: Application) : AndroidViewModel(application) {
 
     private var job: Job? = null
 
