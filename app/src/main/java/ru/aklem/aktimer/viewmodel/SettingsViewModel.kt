@@ -33,5 +33,9 @@ class SettingsViewModel @Inject constructor(
     fun onShowRest(value: Boolean) = viewModelScope.launch {
         preferencesManager.updateShowRest(value)
     }
+
+    fun onUpdateSound(value: String) = viewModelScope.launch {
+        preferencesManager.updateUserSound(value)
+    }
 }
 

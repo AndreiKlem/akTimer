@@ -5,5 +5,6 @@ data class AppSettings(
     val showPeriods: Boolean = true,
     val showProgressBar: Boolean = true,
     val showPreparation: Boolean = true,
-    val showRest: Boolean = true
+    val showRest: Boolean = true,
+    val userSound: String = ""
 )

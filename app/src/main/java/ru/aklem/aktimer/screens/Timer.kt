@@ -1,7 +1,5 @@
 package ru.aklem.aktimer.screens
 
-import android.media.AudioAttributes
-import android.media.SoundPool
 import androidx.compose.animation.*
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
@@ -17,6 +15,7 @@ import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -24,7 +23,6 @@ import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -53,6 +51,10 @@ fun TimerScreen(
     val progressStartTime = timerViewModel.progressStartTime
     val title = chartViewModel.selectedChart?.title
     val settings = settingsViewModel.appSettings.collectAsState(initial = AppSettings())
+
+    LaunchedEffect(settings) {
+        timerViewModel.onRingtoneSet(settings.value.userSound)
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Box(contentAlignment = Alignment.Center) {

@@ -2,9 +2,10 @@ package ru.aklem.aktimer.viewmodel
 
 import android.app.Application
 import android.media.AudioAttributes
+import android.media.Ringtone
 import android.media.RingtoneManager
 import android.media.SoundPool
-import android.net.Uri
+import androidx.core.net.toUri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -13,11 +14,15 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import ru.aklem.aktimer.R
 import ru.aklem.aktimer.data.Chart
+import ru.aklem.aktimer.data.PreferencesManager
 import ru.aklem.aktimer.misc.Period
 import javax.inject.Inject
 
 @HiltViewModel
-class TimerViewModel @Inject constructor(application: Application) : AndroidViewModel(application) {
+class TimerViewModel @Inject constructor(
+    application: Application,
+    private val preferencesManager: PreferencesManager
+) : AndroidViewModel(application) {
 
     private var job: Job? = null
 
@@ -42,8 +47,8 @@ class TimerViewModel @Inject constructor(application: Application) : AndroidView
         .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
         .build()
     private var soundPool = SoundPool.Builder().setAudioAttributes(audioAttributes).build()
-    private val sound = soundPool.load(application, R.raw.double_beep, 1)
-    private var ringtone: Uri? = null
+    private var sound = soundPool.load(application, R.raw.double_beep, 1)
+    private var userSound: Ringtone? = null
 
     fun toggleStartPause() {
         val amountOfPeriods = _periods.size
@@ -95,10 +100,14 @@ class TimerViewModel @Inject constructor(application: Application) : AndroidView
     }
 
     private fun playSound() {
-        if (ringtone == null) {
-            soundPool.play(sound, 1f, 1f, 0, 0, 1f)
-        } else {
-            RingtoneManager.getRingtone(getApplication(), ringtone).play()
+        viewModelScope.launch(Dispatchers.IO) {
+            if (userSound == null) {
+                soundPool.play(sound, 1f, 1f, 0, 0, 1f)
+            } else {
+                userSound?.play()
+                delay(3000)
+                if (userSound?.isPlaying == true) userSound?.stop()
+            }
         }
     }
 
@@ -140,8 +149,10 @@ class TimerViewModel @Inject constructor(application: Application) : AndroidView
         progressStartTime = _progressTime.value
     }
 
-    fun onRingtoneSet(uri: Uri?) {
-        ringtone = uri
+    fun onRingtoneSet(value: String) {
+        userSound = if (value.isNotEmpty()) {
+            RingtoneManager.getRingtone(getApplication(), value.toUri())
+        } else null
     }
 
     override fun onCleared() {

@@ -1,29 +1,24 @@
 package ru.aklem.aktimer.screens
 
 import android.app.Activity
-import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
-import android.content.res.AssetManager
 import android.media.RingtoneManager
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContract
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
-import androidx.compose.material.Divider
-import androidx.compose.material.Switch
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.material.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import kotlinx.coroutines.Job
 import ru.aklem.aktimer.misc.AppSettings
 import ru.aklem.aktimer.viewmodel.SettingsViewModel
@@ -33,11 +28,10 @@ import ru.aklem.aktimer.viewmodel.TimerViewModel
 fun SettingsScreen(timerViewModel: TimerViewModel, settingsViewModel: SettingsViewModel) {
     val context = LocalContext.current
     val settings = settingsViewModel.appSettings.collectAsState(initial = AppSettings())
-    val ringtoneUri = remember { mutableStateOf<Uri?>(null) }
     val launcher = rememberLauncherForActivityResult(PickRingtone()) {
-        ringtoneUri.value = it
-        timerViewModel.onRingtoneSet(ringtoneUri.value)
+        it?.let { settingsViewModel.onUpdateSound(it.toString()) }
     }
+    var expanded by remember { mutableStateOf(false) }
     Column(
         Modifier
             .fillMaxSize()
@@ -60,9 +54,48 @@ fun SettingsScreen(timerViewModel: TimerViewModel, settingsViewModel: SettingsVi
             settings.value.showProgressBar,
             settingsViewModel::onShowProgressBar
         )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(text = "Change default sound", modifier = Modifier.weight(1f))
+            Box(Modifier.padding(end = 8.dp)) {
+                Text(
+                    text = if (settings.value.userSound.isNotEmpty()) {
+                        RingtoneManager.getRingtone(context, settings.value.userSound.toUri())
+                            .getTitle(context)
+                    } else "Default",
+                    modifier = Modifier.clickable { expanded = !expanded },
+                    color = MaterialTheme.colors.primary
+                )
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = !expanded },
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                ) {
+                    Text(
+                        text = "Default",
+                        modifier = Modifier.clickable {
+                            settingsViewModel.onUpdateSound("")
+                            expanded = !expanded
+                        },
+                        fontSize = 22.sp
+                    )
+                    Text(
+                        text = "Set my sound",
+                        modifier = Modifier.clickable {
+                            launcher.launch(RingtoneManager.TYPE_NOTIFICATION)
+                            expanded = !expanded
+                        },
+                        fontSize = 22.sp
+                    )
+                }
+            }
+        }
         Spacer(modifier = Modifier.height(16.dp))
 
-        Header(name = "Saved screen")
+//        Header(name = "Saved screen")
 //        SettingParameter(name = "Select some setting for this screen")
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -77,15 +110,15 @@ fun SettingsScreen(timerViewModel: TimerViewModel, settingsViewModel: SettingsVi
             setting = settings.value.showRest,
             onClick = settingsViewModel::onShowRest
         )
-        Button(onClick = {
-            launcher.launch(RingtoneManager.TYPE_NOTIFICATION)
-        }) {
-            Text(text = "Ringtone picker")
-        }
-        Text(
-            text = RingtoneManager.getRingtone(context, ringtoneUri.value).getTitle(context),
-            fontSize = 24.sp
-        )
+//        Button(onClick = {
+//            launcher.launch(RingtoneManager.TYPE_NOTIFICATION)
+//        }) {
+//            Text(text = "Ringtone picker")
+//        }
+//        Text(
+//            text = RingtoneManager.getRingtone(context, ringtoneUri.value).getTitle(context),
+//            fontSize = 24.sp
+//        )
     }
 }
 
@@ -102,7 +135,7 @@ fun SettingParameter(name: String, setting: Boolean, onClick: (Boolean) -> Job) 
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = name)
+        Text(text = name, modifier = Modifier.alpha(if (setting) 1f else 0.3f))
         Switch(checked = setting, onCheckedChange = { onClick(!setting) })
     }
 }

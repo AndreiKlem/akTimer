@@ -3,10 +3,7 @@ package ru.aklem.aktimer.data
 import android.content.Context
 import android.util.Log
 import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.booleanPreferencesKey
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.emptyPreferences
+import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.catch
@@ -39,7 +36,8 @@ class PreferencesManager @Inject constructor(@ApplicationContext context: Contex
             val showProgressBar = preferences[PreferencesKeys.SHOW_PROGRESS_BAR] ?: true
             val showPreparation = preferences[PreferencesKeys.SHOW_PREPARATION] ?: true
             val showRest = preferences[PreferencesKeys.SHOW_REST] ?: true
-            AppSettings(showTitle, showPeriods, showProgressBar, showPreparation, showRest)
+            val userSound = preferences[PreferencesKeys.USER_SOUND] ?: ""
+            AppSettings(showTitle, showPeriods, showProgressBar, showPreparation, showRest, userSound)
         }
 
     suspend fun updateShowTitle(showTitle: Boolean) {
@@ -68,11 +66,18 @@ class PreferencesManager @Inject constructor(@ApplicationContext context: Contex
         }
     }
 
+    suspend fun updateUserSound(uri: String) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.USER_SOUND] = uri
+        }
+    }
+
     private object PreferencesKeys {
         val SHOW_TITLE = booleanPreferencesKey(name = "show_title")
         val SHOW_PERIODS = booleanPreferencesKey(name = "show_periods")
         val SHOW_PROGRESS_BAR = booleanPreferencesKey(name = "show_progress_bar")
         val SHOW_PREPARATION = booleanPreferencesKey(name = "show_preparation")
         val SHOW_REST = booleanPreferencesKey(name = "show_rest")
+        val USER_SOUND = stringPreferencesKey(name = "user_sound")
     }
 }

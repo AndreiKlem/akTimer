@@ -35,9 +35,9 @@ import ru.aklem.aktimer.viewmodel.TimerViewModel
 fun BottomNavGraph(
     navController: NavHostController
 ) {
+    val settingsViewModel = hiltViewModel<SettingsViewModel>()
     val timerViewModel = hiltViewModel<TimerViewModel>()
     val chartViewModel = hiltViewModel<ChartViewModel>()
-    val settingsViewModel = hiltViewModel<SettingsViewModel>()
     var direction = FORWARD
     var currentScreen = remember { mutableStateOf(BottomBarScreen.Timer.route).value }
     AnimatedNavHost(

@@ -30,7 +30,6 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -111,7 +110,6 @@ fun CreateScreen(
         ) {
             Text(text = if (tag == "edit") "Apply changes" else "Create Timer")
         }
-        var titleState by remember { mutableStateOf(TextFieldValue(title))}
         OutlinedTextField(
             modifier = Modifier
                 .padding(horizontal = 8.dp, vertical = 4.dp)
