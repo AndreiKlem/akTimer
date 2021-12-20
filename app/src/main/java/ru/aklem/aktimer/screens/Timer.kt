@@ -141,7 +141,7 @@ fun Timer(
                     .clickable(onClick = { onStartPause() }),
                 shape = CircleShape,
                 elevation = 4.dp,
-                backgroundColor = MaterialTheme.colors.primary
+                backgroundColor = MaterialTheme.colors.secondary
             ) {
                 Image(
                     painter = painterResource(
@@ -159,7 +159,7 @@ fun Timer(
                     .clickable(onClick = { onStop() }),
                 shape = CircleShape,
                 elevation = 4.dp,
-                backgroundColor = MaterialTheme.colors.primary
+                backgroundColor = MaterialTheme.colors.secondary
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.ic_stop),

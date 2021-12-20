@@ -40,7 +40,6 @@ import ru.aklem.aktimer.R
 import ru.aklem.aktimer.misc.AppSettings
 import ru.aklem.aktimer.misc.ChartPeriods
 import ru.aklem.aktimer.misc.ChartPeriods.*
-import ru.aklem.aktimer.ui.theme.setsBackground
 import ru.aklem.aktimer.viewmodel.SettingsViewModel
 
 @ExperimentalComposeUiApi
@@ -104,6 +103,7 @@ fun CreateScreen(
                     }
                 }
             },
+            colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.secondary),
             modifier = Modifier
                 .padding(end = 8.dp)
                 .align(End)
@@ -218,7 +218,6 @@ fun ActionCard(
         onSetPlaySound = onSetPlaySound,
         playSound = playActionSound,
         cornersShape = topShape,
-        cardBackground = setsBackground,
         focusManager = focusManager
     )
 }
@@ -245,7 +244,6 @@ fun RestCard(
         onSetPlaySound = onSetPlaySound,
         playSound = playRestSound,
         cornersShape = middleShape,
-        cardBackground = setsBackground,
         focusManager = focusManager
     )
 }
@@ -258,8 +256,7 @@ fun RepeatCard(sets: Int, onSetsChange: (Int) -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 4.dp),
-        shape = RoundedCornerShape(bottomStart = 8.dp, bottomEnd = 8.dp),
-        backgroundColor = setsBackground
+        shape = RoundedCornerShape(bottomStart = 8.dp, bottomEnd = 8.dp)
     ) {
         Row(
             modifier = Modifier.padding(8.dp),
@@ -287,7 +284,6 @@ fun CardTemplate(
     onSetPlaySound: (ChartPeriods) -> Unit,
     playSound: Boolean,
     cornersShape: RoundedCornerShape = RoundedCornerShape(8.dp),
-    cardBackground: Color = MaterialTheme.colors.background,
     focusManager: FocusManager
 ) {
     val minutes = time / 60
@@ -297,8 +293,7 @@ fun CardTemplate(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp),
-        shape = cornersShape,
-        backgroundColor = cardBackground
+        shape = cornersShape
     ) {
         Row(modifier = Modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
             OutlinedTextField(
@@ -339,7 +334,7 @@ fun CardTemplate(
                     id = if (playSound) R.drawable.ic_sound_on else R.drawable.ic_sound_off
                 ),
                 contentScale = ContentScale.None,
-                colorFilter = ColorFilter.tint(color = Color.Black),
+                colorFilter = ColorFilter.tint(color = MaterialTheme.colors.secondary),
                 contentDescription = "Play sound when time expires"
             )
         }
@@ -356,6 +351,7 @@ fun Selector(range: List<Int>, value: Int, onValueChange: (Int) -> Unit) {
             text = if (doubleDigit) formattedNumber(value) else value.toString(),
             fontSize = 24.sp,
             modifier = Modifier.clickable { showPopup.value = true },
+            color = MaterialTheme.colors.secondary
         )
         Popup(alignment = Alignment.Center, onDismissRequest = { showPopup.value = false }) {
             AnimatedVisibility(

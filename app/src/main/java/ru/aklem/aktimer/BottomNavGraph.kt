@@ -105,7 +105,7 @@ fun BottomNavGraph(
             enterTransition = { enterAnimation(FORWARD) },
             exitTransition = { exitAnimation(BACKWARDS) }
         ) {
-            SettingsScreen(timerViewModel, settingsViewModel)
+            SettingsScreen(settingsViewModel)
         }
     }
 }

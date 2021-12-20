@@ -3,7 +3,8 @@ package ru.aklem.aktimer.screens
 import android.content.ContentValues.TAG
 import android.content.res.Configuration
 import android.util.Log
-import androidx.compose.animation.*
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -148,8 +149,8 @@ fun ChartCard(
                 overflow = TextOverflow.Ellipsis,
                 maxLines = 1,
                 style = TextStyle(
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Thin
                 )
             )
             if (chart.preparationTime > 0) {
@@ -196,7 +197,7 @@ fun ChartCard(
                 ) {
                     Text(
                         text = "Delete",
-                        color = MaterialTheme.colors.primary,
+                        color = MaterialTheme.colors.secondary,
                         modifier = Modifier.clickable {
                             onDeleteChart(chart)
                             coroutineScope.launch {
@@ -215,7 +216,7 @@ fun ChartCard(
                         })
                     Text(
                         text = "Edit",
-                        color = MaterialTheme.colors.primary,
+                        color = MaterialTheme.colors.secondary,
                         modifier = Modifier.clickable {
                             onEditChart(chart)
                             navController.navigate(route = "create/edit")
@@ -223,7 +224,7 @@ fun ChartCard(
                     )
                     Text(
                         text = "Select",
-                        color = MaterialTheme.colors.primary,
+                        color = MaterialTheme.colors.secondary,
                         modifier = Modifier.clickable {
                             stopTimerOnChartSelected()
                             setTimerPeriods(chart)

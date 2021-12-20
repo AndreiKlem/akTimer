@@ -16,16 +16,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import kotlinx.coroutines.Job
 import ru.aklem.aktimer.misc.AppSettings
 import ru.aklem.aktimer.viewmodel.SettingsViewModel
-import ru.aklem.aktimer.viewmodel.TimerViewModel
 
 @Composable
-fun SettingsScreen(timerViewModel: TimerViewModel, settingsViewModel: SettingsViewModel) {
+fun SettingsScreen(settingsViewModel: SettingsViewModel) {
     val context = LocalContext.current
     val settings = settingsViewModel.appSettings.collectAsState(initial = AppSettings())
     val launcher = rememberLauncherForActivityResult(PickRingtone()) {
@@ -67,24 +68,30 @@ fun SettingsScreen(timerViewModel: TimerViewModel, settingsViewModel: SettingsVi
                             .getTitle(context)
                     } else "Default",
                     modifier = Modifier.clickable { expanded = !expanded },
-                    color = MaterialTheme.colors.primary
+                    color = MaterialTheme.colors.secondary
                 )
                 DropdownMenu(
                     expanded = expanded,
                     onDismissRequest = { expanded = !expanded },
                     modifier = Modifier.padding(horizontal = 8.dp)
                 ) {
-                    Text(
-                        text = "Default",
-                        modifier = Modifier.clickable {
-                            settingsViewModel.onUpdateSound("")
-                            expanded = !expanded
-                        },
-                        fontSize = 22.sp
-                    )
+                    if (settings.value.userSound.isNotEmpty()) {
+                        Text(
+                            text = "Default",
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    settingsViewModel.onUpdateSound("")
+                                    expanded = !expanded
+                                },
+                            fontSize = 22.sp
+                        )
+                    }
                     Text(
                         text = "Set my sound",
-                        modifier = Modifier.clickable {
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
                             launcher.launch(RingtoneManager.TYPE_NOTIFICATION)
                             expanded = !expanded
                         },
@@ -110,21 +117,12 @@ fun SettingsScreen(timerViewModel: TimerViewModel, settingsViewModel: SettingsVi
             setting = settings.value.showRest,
             onClick = settingsViewModel::onShowRest
         )
-//        Button(onClick = {
-//            launcher.launch(RingtoneManager.TYPE_NOTIFICATION)
-//        }) {
-//            Text(text = "Ringtone picker")
-//        }
-//        Text(
-//            text = RingtoneManager.getRingtone(context, ringtoneUri.value).getTitle(context),
-//            fontSize = 24.sp
-//        )
     }
 }
 
 @Composable
 fun Header(name: String) {
-    Text(text = name)
+    Text(text = name, style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Thin))
     Divider(modifier = Modifier.height(1.dp), color = Color.Black)
 }
 
@@ -135,8 +133,12 @@ fun SettingParameter(name: String, setting: Boolean, onClick: (Boolean) -> Job) 
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = name, modifier = Modifier.alpha(if (setting) 1f else 0.3f))
-        Switch(checked = setting, onCheckedChange = { onClick(!setting) })
+        Text(text = name, modifier = Modifier.alpha(if (setting) 1f else 0.38f))
+        Switch(
+            checked = setting,
+            onCheckedChange = { onClick(!setting) },
+            colors = SwitchDefaults.colors(checkedThumbColor = MaterialTheme.colors.secondary)
+        )
     }
 }
 
