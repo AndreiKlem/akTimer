@@ -3,22 +3,34 @@ package ru.aklem.aktimer.screens
 import android.widget.Toast
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.*
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.End
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -32,6 +44,7 @@ import ru.aklem.aktimer.misc.ChartPeriods.*
 import ru.aklem.aktimer.ui.theme.setsBackground
 import ru.aklem.aktimer.viewmodel.SettingsViewModel
 
+@ExperimentalComposeUiApi
 @ExperimentalAnimationApi
 @Composable
 fun CreateScreen(
@@ -49,7 +62,8 @@ fun CreateScreen(
     onRepeatChange: (Int) -> Unit,
     updateChart: () -> Unit,
     createChart: () -> Unit,
-    settingsViewModel: SettingsViewModel
+    settingsViewModel: SettingsViewModel,
+    focusManager: FocusManager
 ) {
     val preparationHeader by header(PREPARATION).collectAsState()
     val actionHeader by header(ACTION).collectAsState()
@@ -61,6 +75,7 @@ fun CreateScreen(
     val playActionSound by playSound(ACTION).collectAsState()
     val playRestSound by playSound(REST).collectAsState()
     val settings = settingsViewModel.appSettings.collectAsState(initial = AppSettings())
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -96,11 +111,20 @@ fun CreateScreen(
         ) {
             Text(text = if (tag == "edit") "Apply changes" else "Create Timer")
         }
+        var titleState by remember { mutableStateOf(TextFieldValue(title))}
         OutlinedTextField(
             modifier = Modifier
                 .padding(horizontal = 8.dp, vertical = 4.dp)
                 .fillMaxWidth()
+                .onKeyEvent {
+                    if (it.key.keyCode == Key.NavigateNext.keyCode) {
+                        focusManager.moveFocus(FocusDirection.Next)
+                        true
+                    } else false
+                }
                 .align(CenterHorizontally),
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+            keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Next) }),
             placeholder = { Text(text = "Please enter a title") },
             value = title,
             onValueChange = { if (it.length < 40) onTitleChange(it) },
@@ -113,7 +137,8 @@ fun CreateScreen(
                 preparationTime,
                 onTimeChange,
                 onSetPlaySound,
-                playPreparationSound
+                playPreparationSound,
+                focusManager = focusManager
             )
         }
         ActionCard(
@@ -122,7 +147,8 @@ fun CreateScreen(
             actionTime,
             onTimeChange,
             onSetPlaySound,
-            playActionSound
+            playActionSound,
+            focusManager = focusManager
         )
         if (settings.value.showRest) {
             RestCard(
@@ -131,7 +157,8 @@ fun CreateScreen(
                 restTime,
                 onTimeChange,
                 onSetPlaySound,
-                playRestSound
+                playRestSound,
+                focusManager = focusManager
             )
         }
         RepeatCard(sets, onRepeatChange)
@@ -147,6 +174,7 @@ fun checkInput(title: String, actionTime: Int): Int {
     return result
 }
 
+@ExperimentalComposeUiApi
 @ExperimentalAnimationApi
 @Composable
 fun PrepareCard(
@@ -155,7 +183,8 @@ fun PrepareCard(
     prepareTime: Int,
     onTimeChange: (ChartPeriods, Int, Int) -> Unit,
     onSetPlaySound: (ChartPeriods) -> Unit,
-    playPreparationSound: Boolean
+    playPreparationSound: Boolean,
+    focusManager: FocusManager
 ) {
     CardTemplate(
         period = PREPARATION,
@@ -165,9 +194,11 @@ fun PrepareCard(
         onTimeChange = onTimeChange,
         onSetPlaySound = onSetPlaySound,
         playSound = playPreparationSound,
+        focusManager = focusManager
     )
 }
 
+@ExperimentalComposeUiApi
 @ExperimentalAnimationApi
 @Composable
 fun ActionCard(
@@ -176,7 +207,8 @@ fun ActionCard(
     actionTime: Int,
     onTimeChange: (ChartPeriods, Int, Int) -> Unit,
     onSetPlaySound: (ChartPeriods) -> Unit,
-    playActionSound: Boolean
+    playActionSound: Boolean,
+    focusManager: FocusManager
 ) {
     val topShape = RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp)
     CardTemplate(
@@ -188,10 +220,12 @@ fun ActionCard(
         onSetPlaySound = onSetPlaySound,
         playSound = playActionSound,
         cornersShape = topShape,
-        cardBackground = setsBackground
+        cardBackground = setsBackground,
+        focusManager = focusManager
     )
 }
 
+@ExperimentalComposeUiApi
 @ExperimentalAnimationApi
 @Composable
 fun RestCard(
@@ -200,7 +234,8 @@ fun RestCard(
     restTime: Int,
     onTimeChange: (ChartPeriods, Int, Int) -> Unit,
     onSetPlaySound: (ChartPeriods) -> Unit,
-    playRestSound: Boolean
+    playRestSound: Boolean,
+    focusManager: FocusManager
 ) {
     val middleShape = RoundedCornerShape(0.dp)
     CardTemplate(
@@ -212,7 +247,8 @@ fun RestCard(
         onSetPlaySound = onSetPlaySound,
         playSound = playRestSound,
         cornersShape = middleShape,
-        cardBackground = setsBackground
+        cardBackground = setsBackground,
+        focusManager = focusManager
     )
 }
 
@@ -241,6 +277,7 @@ fun RepeatCard(sets: Int, onSetsChange: (Int) -> Unit) {
     }
 }
 
+@ExperimentalComposeUiApi
 @ExperimentalAnimationApi
 @Composable
 fun CardTemplate(
@@ -252,7 +289,8 @@ fun CardTemplate(
     onSetPlaySound: (ChartPeriods) -> Unit,
     playSound: Boolean,
     cornersShape: RoundedCornerShape = RoundedCornerShape(8.dp),
-    cardBackground: Color = MaterialTheme.colors.background
+    cardBackground: Color = MaterialTheme.colors.background,
+    focusManager: FocusManager
 ) {
     val minutes = time / 60
     val seconds = time % 60
@@ -268,8 +306,18 @@ fun CardTemplate(
             OutlinedTextField(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .onKeyEvent {
+                        if (it.key.keyCode == Key.NavigateNext.keyCode) {
+                            focusManager.moveFocus(FocusDirection.Next)
+                            true
+                        } else false
+                    }
                     .weight(1f)
                     .padding(end = 8.dp),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                keyboardActions = KeyboardActions(
+                    onNext = { focusManager.moveFocus(FocusDirection.Next) }
+                ),
                 placeholder = { Text(text = "Please enter a header") },
                 value = header,
                 onValueChange = { if (it.length < 40) onHeaderChange(period, it) },

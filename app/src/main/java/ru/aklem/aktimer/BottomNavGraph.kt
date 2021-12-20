@@ -7,6 +7,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -25,6 +27,7 @@ import ru.aklem.aktimer.viewmodel.ChartViewModel
 import ru.aklem.aktimer.viewmodel.SettingsViewModel
 import ru.aklem.aktimer.viewmodel.TimerViewModel
 
+@ExperimentalComposeUiApi
 @ExperimentalFoundationApi
 @InternalCoroutinesApi
 @ExperimentalAnimationApi
@@ -77,6 +80,7 @@ fun BottomNavGraph(
         ) {backStackEntry ->
             val title = chartViewModel.title.collectAsState().value
             val sets = chartViewModel.repeat.collectAsState().value
+            val focusManager = LocalFocusManager.current
             CreateScreen(
                 navController = navController,
                 tag = backStackEntry.arguments?.getString("tag"),
@@ -92,7 +96,8 @@ fun BottomNavGraph(
                 onRepeatChange = chartViewModel::onRepeatChange,
                 updateChart = chartViewModel::onUpdateChart,
                 createChart = chartViewModel::createChart,
-                settingsViewModel = settingsViewModel
+                settingsViewModel = settingsViewModel,
+                focusManager = focusManager
             )
         }
         composable(

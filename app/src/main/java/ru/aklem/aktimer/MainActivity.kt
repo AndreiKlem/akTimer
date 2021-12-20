@@ -7,14 +7,16 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
+import androidx.compose.ui.ExperimentalComposeUiApi
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.InternalCoroutinesApi
 import ru.aklem.aktimer.ui.theme.AkTimerTheme
 
 @ExperimentalFoundationApi
+@ExperimentalAnimationApi
+@ExperimentalComposeUiApi
 @InternalCoroutinesApi
 @AndroidEntryPoint
-@ExperimentalAnimationApi
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
