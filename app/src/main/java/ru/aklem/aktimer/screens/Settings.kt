@@ -19,6 +19,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
@@ -72,7 +73,9 @@ fun SettingsScreen(settingsViewModel: SettingsViewModel) {
                         RingtoneManager.getRingtone(context, settings.value.userSound.toUri())
                             .getTitle(context)
                     } else stringResource(id = R.string.default_sound),
-                    modifier = Modifier.clickable { expanded = !expanded },
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.widthIn(max = 200.dp).clickable { expanded = !expanded },
                     color = MaterialTheme.colors.secondary
                 )
                 DropdownMenu(
