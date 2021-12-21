@@ -11,6 +11,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -66,7 +67,13 @@ fun RowScope.AddItem(
     navController: NavHostController,
 ) {
     BottomNavigationItem(
-        label = { Text(text = screen.title) },
+        label = { Text(text = when(screen.title) {
+            "Timer" -> stringResource(id = R.string.timer)
+            "Saved" -> stringResource(id = R.string.saved)
+            "Create" -> stringResource(id = R.string.create)
+            "Settings" -> stringResource(id = R.string.settings)
+            else -> "Tile error"
+        }) },
         icon = { Icon(
             painter = painterResource(id = screen.icon),
             contentDescription = "Navigation Icon"

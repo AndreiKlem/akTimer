@@ -16,12 +16,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import kotlinx.coroutines.Job
+import ru.aklem.aktimer.R
 import ru.aklem.aktimer.misc.AppSettings
 import ru.aklem.aktimer.viewmodel.SettingsViewModel
 
@@ -39,19 +41,19 @@ fun SettingsScreen(settingsViewModel: SettingsViewModel) {
             .padding(8.dp)
     ) {
 
-        Header(name = "Timer screen")
+        Header(name = stringResource(id = R.string.timer_screen))
         SettingParameter(
-            name = "Show selected timer title",
+            name = stringResource(id = R.string.title_show_setting),
             settings.value.showTitle,
             settingsViewModel::onShowTitleChange
         )
         SettingParameter(
-            name = "Show selected timer periods",
+            name = stringResource(id = R.string.period_show_setting),
             settings.value.showPeriods,
             settingsViewModel::onShowPeriodsChange
         )
         SettingParameter(
-            name = "Show progress bar",
+            name = stringResource(id = R.string.progress_bar_show_setting),
             settings.value.showProgressBar,
             settingsViewModel::onShowProgressBar
         )
@@ -60,13 +62,16 @@ fun SettingsScreen(settingsViewModel: SettingsViewModel) {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = "Change default sound", modifier = Modifier.weight(1f))
+            Text(
+                text = stringResource(id = R.string.change_sound_setting),
+                modifier = Modifier.weight(1f)
+            )
             Box(Modifier.padding(end = 8.dp)) {
                 Text(
                     text = if (settings.value.userSound.isNotEmpty()) {
                         RingtoneManager.getRingtone(context, settings.value.userSound.toUri())
                             .getTitle(context)
-                    } else "Default",
+                    } else stringResource(id = R.string.default_sound),
                     modifier = Modifier.clickable { expanded = !expanded },
                     color = MaterialTheme.colors.secondary
                 )
@@ -77,7 +82,7 @@ fun SettingsScreen(settingsViewModel: SettingsViewModel) {
                 ) {
                     if (settings.value.userSound.isNotEmpty()) {
                         Text(
-                            text = "Default",
+                            text = stringResource(id = R.string.default_sound),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable {
@@ -88,13 +93,13 @@ fun SettingsScreen(settingsViewModel: SettingsViewModel) {
                         )
                     }
                     Text(
-                        text = "Set my sound",
+                        text = stringResource(id = R.string.another_sound),
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable {
-                            launcher.launch(RingtoneManager.TYPE_NOTIFICATION)
-                            expanded = !expanded
-                        },
+                                launcher.launch(RingtoneManager.TYPE_NOTIFICATION)
+                                expanded = !expanded
+                            },
                         fontSize = 22.sp
                     )
                 }
@@ -106,14 +111,14 @@ fun SettingsScreen(settingsViewModel: SettingsViewModel) {
 //        SettingParameter(name = "Select some setting for this screen")
         Spacer(modifier = Modifier.height(16.dp))
 
-        Header(name = "Create screen")
+        Header(name = stringResource(id = R.string.create_screen))
         SettingParameter(
-            name = "Show preparation period",
+            name = stringResource(id = R.string.preparation_show_setting),
             settings.value.showPreparation,
             settingsViewModel::onShowPreparation
         )
         SettingParameter(
-            name = "Show rest period",
+            name = stringResource(id = R.string.rest_show_setting),
             setting = settings.value.showRest,
             onClick = settingsViewModel::onShowRest
         )

@@ -29,6 +29,7 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -74,6 +75,9 @@ fun CreateScreen(
     val playRestSound by playSound(REST).collectAsState()
     val settings = settingsViewModel.appSettings.collectAsState(initial = AppSettings())
 
+    val titleRequest = stringResource(id = R.string.title_request)
+    val timeRequest = stringResource(id = R.string.time_request)
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -90,14 +94,14 @@ fun CreateScreen(
                     2 -> {
                         Toast.makeText(
                             navController.context,
-                            "Please enter a title",
+                            titleRequest,
                             Toast.LENGTH_SHORT
                         ).show()
                     }
                     3 -> {
                         Toast.makeText(
                             navController.context,
-                            "Please enter a time for action",
+                            timeRequest,
                             Toast.LENGTH_SHORT
                         ).show()
                     }
@@ -108,7 +112,10 @@ fun CreateScreen(
                 .padding(end = 8.dp)
                 .align(End)
         ) {
-            Text(text = if (tag == "edit") "Apply changes" else "Create Timer")
+            Text(
+                text = if (tag == "edit") stringResource(id = R.string.apply_changes)
+            else stringResource(id = R.string.create_timer)
+            )
         }
         OutlinedTextField(
             modifier = Modifier
@@ -123,7 +130,7 @@ fun CreateScreen(
                 .align(CenterHorizontally),
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
             keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Next) }),
-            placeholder = { Text(text = "Please enter a title") },
+            placeholder = { Text(text = stringResource(id = R.string.title_request)) },
             value = title,
             onValueChange = { if (it.length < 40) onTitleChange(it) },
             singleLine = true
@@ -266,7 +273,11 @@ fun RepeatCard(sets: Int, onSetsChange: (Int) -> Unit) {
             Selector(range = range, value = sets, onValueChange = onSetsChange)
             Spacer(modifier = Modifier.width(8.dp))
             Crossfade(targetState = sets) { sets ->
-                if (sets > 1) Text("sets") else Text("set")
+                when {
+                    sets == 1 -> Text(stringResource(id = R.string.set))
+                    sets % 10 in 2..4 && sets / 10 != 1 -> Text(stringResource(id = R.string.sets))
+                    else -> Text(stringResource(id = R.string.sets2))
+                }
             }
         }
     }
@@ -311,7 +322,7 @@ fun CardTemplate(
                 keyboardActions = KeyboardActions(
                     onNext = { focusManager.moveFocus(FocusDirection.Next) }
                 ),
-                placeholder = { Text(text = "Please enter a header") },
+                placeholder = { Text(text = stringResource(id = R.string.header_request)) },
                 value = header,
                 onValueChange = { if (it.length < 40) onHeaderChange(period, it) },
                 singleLine = true

@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -31,7 +32,6 @@ import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.launch
 import ru.aklem.aktimer.R
 import ru.aklem.aktimer.data.Chart
-import ru.aklem.aktimer.misc.getTestCharts
 import ru.aklem.aktimer.viewmodel.ChartViewModel
 import ru.aklem.aktimer.viewmodel.TimerViewModel
 
@@ -55,16 +55,17 @@ fun SavedScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "No timers created yet",
+                    text = stringResource(id = R.string.no_timers),
                     style = TextStyle(fontSize = 20.sp),
                     textAlign = TextAlign.Center
                 )
-                Button(
+                // Several timers for testing purposes
+                /* Button(
                     modifier = Modifier.padding(top = 32.dp),
                     onClick = { chartViewModel.insertTestChartsToDatabase(getTestCharts()) }
                 ) {
-                    Text(text = "Insert test data to database")
-                }
+                    Text(text = stringResource(id = R.string.insert_timers))
+                }*/
             }
         } else {
             if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT) {
@@ -133,6 +134,8 @@ fun ChartCard(
     onDeleteChart: (Chart) -> Unit
 ) {
     var showFooter by remember { mutableStateOf(false) }
+    val snackBarMessage = stringResource(id = R.string.timer_deleted)
+    val snackBarActionLabel = stringResource(id = R.string.undo)
     Card(
         modifier = Modifier
             .padding(horizontal = 4.dp, vertical = 4.dp)
@@ -196,15 +199,15 @@ fun ChartCard(
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
                     Text(
-                        text = "Delete",
+                        text = stringResource(id = R.string.delete),
                         color = MaterialTheme.colors.secondary,
                         modifier = Modifier.clickable {
                             onDeleteChart(chart)
                             coroutineScope.launch {
                                 val snackBarResult =
                                     scaffoldState.snackbarHostState.showSnackbar(
-                                        message = "Timer deleted",
-                                        actionLabel = "UNDO"
+                                        message = snackBarMessage,
+                                        actionLabel = snackBarActionLabel
                                     )
                                 when (snackBarResult) {
                                     SnackbarResult.Dismissed -> Log.d(TAG, "SnackBar dismissed")
@@ -215,7 +218,7 @@ fun ChartCard(
                             }
                         })
                     Text(
-                        text = "Edit",
+                        text = stringResource(id = R.string.edit),
                         color = MaterialTheme.colors.secondary,
                         modifier = Modifier.clickable {
                             onEditChart(chart)
@@ -223,7 +226,7 @@ fun ChartCard(
                         }
                     )
                     Text(
-                        text = "Select",
+                        text = stringResource(id = R.string.select),
                         color = MaterialTheme.colors.secondary,
                         modifier = Modifier.clickable {
                             stopTimerOnChartSelected()

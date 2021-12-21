@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">akTimer</string>
+    <string name="timer">Таймер</string>
+    <string name="saved">Список</string>
+    <string name="create">Создать</string>
+    <string name="settings">Настройки</string>
+    <string name="timer_screen">Экран таймера</string>
+    <string name="create_screen">Экран создания</string>
+    <string name="title_show_setting">Показывать название таймера</string>
+    <string name="period_show_setting">Показывать названия периодов</string>
+    <string name="progress_bar_show_setting">Показать полосу прогресса</string>
+    <string name="change_sound_setting">Изменить звук</string>
+    <string name="default_sound">По умолчанию</string>
+    <string name="another_sound">Другой звук</string>
+    <string name="preparation_show_setting">Показывать период подготовки</string>
+    <string name="rest_show_setting">Показывать период отдыха</string>
+    <string name="no_timers">Пока еще не создано ни одного таймера</string>
+    <string name="insert_timers">Создать случайные таймеры</string>
+    <string name="timer_deleted">Таймер удален</string>
+    <string name="undo">ОТМЕНИТЬ</string>
+    <string name="delete">Удалить</string>
+    <string name="edit">Изменить</string>
+    <string name="select">Выбрать</string>
+    <string name="title_request">Пожалуйста, укажите название таймера</string>
+    <string name="time_request">Пожалуйста, укажите продолжительность для периода действия</string>
+    <string name="apply_changes">Применить изменения</string>
+    <string name="create_timer">Создать таймер</string>
+    <string name="header_request">Пожалуйста, укажите заголовок</string>
+    <string name="set">повтор</string>
+    <string name="sets">повтора</string>
+    <string name="sets2">повторов</string>
+    <string name="title">Название</string>
+    <string name="header_preparation">Подготовка</string>
+    <string name="header_action">Действие</string>
+    <string name="header_rest">Отдых</string>
+
+</resources>

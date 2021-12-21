@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import ru.aklem.aktimer.R
 import ru.aklem.aktimer.data.Chart
 import ru.aklem.aktimer.data.ChartDatabase
 import ru.aklem.aktimer.data.ChartRepository
@@ -31,11 +32,11 @@ class ChartViewModel(application: Application) : AndroidViewModel(application) {
     var selectedChart: Chart? = null
 
     private var id = 0
-    private var _title = MutableStateFlow(chart.title)
+    private var _title = MutableStateFlow(application.resources.getString(R.string.title))
     val title = _title.asStateFlow()
-    private var _headerPreparation = MutableStateFlow(chart.headerPreparation)
-    private var _headerAction = MutableStateFlow(chart.headerAction)
-    private var _headerRest = MutableStateFlow(chart.headerRest)
+    private var _headerPreparation = MutableStateFlow(application.resources.getString(R.string.header_preparation))
+    private var _headerAction = MutableStateFlow(application.resources.getString(R.string.header_action))
+    private var _headerRest = MutableStateFlow(application.resources.getString(R.string.header_rest))
     private var _preparationTime = MutableStateFlow(chart.preparationTime)
     private var _actionTime = MutableStateFlow(chart.actionTime)
     private var _restTime = MutableStateFlow(chart.restTime)
