@@ -47,7 +47,15 @@ fun SavedScreen(
     val charts = chartViewModel.charts.observeAsState().value
     val scaffoldState = rememberScaffoldState()
     val coroutineScope = rememberCoroutineScope()
-    Scaffold(modifier = Modifier.fillMaxSize(), scaffoldState = scaffoldState) {
+    Scaffold(modifier = Modifier.fillMaxSize(), scaffoldState = scaffoldState, snackbarHost = {
+        SnackbarHost(it) { data ->
+            Snackbar(
+                snackbarData = data,
+                backgroundColor = MaterialTheme.colors.primaryVariant,
+                actionColor = MaterialTheme.colors.secondary
+            )
+        }
+    }) {
         if (charts.isNullOrEmpty()) {
             Column(
                 modifier = Modifier.fillMaxSize(),
