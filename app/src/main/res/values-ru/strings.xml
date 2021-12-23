@@ -27,6 +27,7 @@
     <string name="apply_changes">Применить изменения</string>
     <string name="create_timer">Создать таймер</string>
     <string name="header_request">Пожалуйста, укажите заголовок</string>
+    <string name="action_header_request">Пожалуйста, укажите заголовок для периода действия</string>
     <string name="set">повтор</string>
     <string name="sets">повтора</string>
     <string name="sets2">повторов</string>
@@ -34,5 +35,6 @@
     <string name="header_preparation">Подготовка</string>
     <string name="header_action">Действие</string>
     <string name="header_rest">Отдых</string>
+    <string name="can_be_omitted">Можно не указывать</string>
 
 </resources>

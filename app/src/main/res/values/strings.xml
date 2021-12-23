@@ -26,6 +26,7 @@
     <string name="apply_changes">Apply changes</string>
     <string name="create_timer">Create Timer</string>
     <string name="header_request">Please enter a header</string>
+    <string name="action_header_request">Please enter a header for action period</string>
     <string name="set">set</string>
     <string name="sets">sets</string>
     <string name="sets2">sets</string>
@@ -33,5 +34,6 @@
     <string name="header_preparation">Preparation</string>
     <string name="header_action">Action</string>
     <string name="header_rest">Rest</string>
+    <string name="can_be_omitted">Can be omitted</string>
 
 </resources>

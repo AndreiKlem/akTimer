@@ -14,6 +14,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
@@ -76,6 +78,7 @@ fun CreateScreen(
     val settings = settingsViewModel.appSettings.collectAsState(initial = AppSettings())
 
     val titleRequest = stringResource(id = R.string.title_request)
+    val actionHeaderRequest = stringResource(id = R.string.action_header_request)
     val timeRequest = stringResource(id = R.string.time_request)
 
     Column(
@@ -86,7 +89,7 @@ fun CreateScreen(
     ) {
         Button(
             onClick = {
-                when (checkInput(title, actionTime)) {
+                when (checkInput(title, actionHeader, actionTime)) {
                     1 -> {
                         if (tag == "edit") updateChart() else createChart()
                         navController.navigate("saved")
@@ -99,6 +102,13 @@ fun CreateScreen(
                         ).show()
                     }
                     3 -> {
+                        Toast.makeText(
+                            navController.context,
+                            actionHeaderRequest,
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                    4 -> {
                         Toast.makeText(
                             navController.context,
                             timeRequest,
@@ -114,7 +124,7 @@ fun CreateScreen(
         ) {
             Text(
                 text = if (tag == "edit") stringResource(id = R.string.apply_changes)
-            else stringResource(id = R.string.create_timer)
+                else stringResource(id = R.string.create_timer)
             )
         }
         OutlinedTextField(
@@ -133,7 +143,12 @@ fun CreateScreen(
             placeholder = { Text(text = stringResource(id = R.string.title_request)) },
             value = title,
             onValueChange = { if (it.length < 40) onTitleChange(it) },
-            singleLine = true
+            singleLine = true,
+            trailingIcon = {
+                IconButton(onClick = { onTitleChange("") }) {
+                    Icon(imageVector = Icons.Filled.Close, contentDescription = "Delete")
+                }
+            }
         )
         if (settings.value.showPreparation) {
             PrepareCard(
@@ -170,13 +185,13 @@ fun CreateScreen(
     }
 }
 
-fun checkInput(title: String, actionTime: Int): Int {
-    var result = 1
-    if (title.isBlank()) {
-        result = 2
-
-    } else if (actionTime <= 0) result = 3
-    return result
+fun checkInput(title: String, actionHeader: String, actionTime: Int): Int {
+    return when {
+        title.isBlank() -> 2
+        actionHeader.isBlank() -> 3
+        actionTime <= 0 -> 4
+        else -> 1
+    }
 }
 
 @ExperimentalComposeUiApi
@@ -304,7 +319,9 @@ fun CardTemplate(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp),
-        shape = cornersShape
+        shape = cornersShape,
+        backgroundColor = if (period == PREPARATION) MaterialTheme.colors.background
+        else MaterialTheme.colors.surface
     ) {
         Row(modifier = Modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
             OutlinedTextField(
@@ -322,10 +339,22 @@ fun CardTemplate(
                 keyboardActions = KeyboardActions(
                     onNext = { focusManager.moveFocus(FocusDirection.Next) }
                 ),
-                placeholder = { Text(text = stringResource(id = R.string.header_request)) },
+                placeholder = {
+                    Text(
+                        text = stringResource(
+                            id = if (period == ACTION) R.string.header_request
+                            else R.string.can_be_omitted
+                        )
+                    )
+                },
                 value = header,
                 onValueChange = { if (it.length < 40) onHeaderChange(period, it) },
-                singleLine = true
+                singleLine = true,
+                trailingIcon = {
+                    IconButton(onClick = { onHeaderChange(period, "") }) {
+                        Icon(imageVector = Icons.Filled.Close, contentDescription = "Delete")
+                    }
+                }
             )
             Selector(range = range, value = minutes, onValueChange = {
                 onTimeChange(period, it, seconds)

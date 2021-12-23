@@ -67,17 +67,24 @@ fun RowScope.AddItem(
     navController: NavHostController,
 ) {
     BottomNavigationItem(
-        label = { Text(text = when(screen.title) {
-            "Timer" -> stringResource(id = R.string.timer)
-            "Saved" -> stringResource(id = R.string.saved)
-            "Create" -> stringResource(id = R.string.create)
-            "Settings" -> stringResource(id = R.string.settings)
-            else -> "Tile error"
-        }) },
-        icon = { Icon(
-            painter = painterResource(id = screen.icon),
-            contentDescription = "Navigation Icon"
-        ) },
+        label = {
+            Text(
+                text = when (screen.title) {
+                    "Timer" -> stringResource(id = R.string.timer)
+                    "Saved" -> stringResource(id = R.string.saved)
+                    "Create" -> stringResource(id = R.string.create)
+                    "Settings" -> stringResource(id = R.string.settings)
+                    else -> "Tile error"
+                },
+                maxLines = 1,
+            )
+        },
+        icon = {
+            Icon(
+                painter = painterResource(id = screen.icon),
+                contentDescription = "Navigation Icon"
+            )
+        },
         selected = currentDestination?.hierarchy?.any {
             it.route == screen.route
         } == true,
