@@ -111,16 +111,14 @@ class TimerViewModel @Inject constructor(application: Application) : AndroidView
         if (_periods.isNotEmpty()) _periods.clear()
         _timerValue.value =
             if (chart.preparationTime > 0) chart.preparationTime else chart.actionTime
-        if (chart.preparationTime > 0) {
-            _periods.add(
+        for (i in 0 until (chart.repeat)) {
+            if (chart.preparationTime > 0) _periods.add(
                 Period(
                     name = chart.headerPreparation,
                     time = chart.preparationTime,
                     playSound = chart.playPreparationSound
                 )
             )
-        }
-        for (i in 0 until (chart.repeat)) {
             _periods.add(
                 Period(
                     name = chart.headerAction,

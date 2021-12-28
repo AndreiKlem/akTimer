@@ -33,6 +33,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -138,7 +139,10 @@ fun CreateScreen(
                     } else false
                 }
                 .align(CenterHorizontally),
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+            keyboardOptions = KeyboardOptions(
+                imeAction = ImeAction.Next,
+                capitalization = KeyboardCapitalization.Sentences
+            ),
             keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Next) }),
             placeholder = { Text(text = stringResource(id = R.string.title_request)) },
             value = title,
@@ -206,6 +210,7 @@ fun PrepareCard(
     playPreparationSound: Boolean,
     focusManager: FocusManager
 ) {
+    val topShape = RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp)
     CardTemplate(
         period = PREPARATION,
         header = headerPrepare,
@@ -214,6 +219,7 @@ fun PrepareCard(
         onTimeChange = onTimeChange,
         onSetPlaySound = onSetPlaySound,
         playSound = playPreparationSound,
+        cornersShape = topShape,
         focusManager = focusManager
     )
 }
@@ -230,7 +236,7 @@ fun ActionCard(
     playActionSound: Boolean,
     focusManager: FocusManager
 ) {
-    val topShape = RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp)
+    val middleShape = RoundedCornerShape(0.dp)
     CardTemplate(
         period = ACTION,
         header = headerAction,
@@ -239,7 +245,7 @@ fun ActionCard(
         onTimeChange = onTimeChange,
         onSetPlaySound = onSetPlaySound,
         playSound = playActionSound,
-        cornersShape = topShape,
+        cornersShape = middleShape,
         focusManager = focusManager
     )
 }
@@ -309,7 +315,7 @@ fun CardTemplate(
     onTimeChange: (ChartPeriods, Int, Int) -> Unit,
     onSetPlaySound: (ChartPeriods) -> Unit,
     playSound: Boolean,
-    cornersShape: RoundedCornerShape = RoundedCornerShape(8.dp),
+    cornersShape: RoundedCornerShape,
     focusManager: FocusManager
 ) {
     val minutes = time / 60
@@ -320,8 +326,7 @@ fun CardTemplate(
             .fillMaxWidth()
             .padding(vertical = 4.dp),
         shape = cornersShape,
-        backgroundColor = if (period == PREPARATION) MaterialTheme.colors.background
-        else MaterialTheme.colors.surface
+        backgroundColor = MaterialTheme.colors.surface
     ) {
         Row(modifier = Modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
             OutlinedTextField(
@@ -335,7 +340,10 @@ fun CardTemplate(
                     }
                     .weight(1f)
                     .padding(end = 8.dp),
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Next,
+                    capitalization = KeyboardCapitalization.Sentences
+                ),
                 keyboardActions = KeyboardActions(
                     onNext = { focusManager.moveFocus(FocusDirection.Next) }
                 ),
