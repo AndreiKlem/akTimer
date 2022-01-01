@@ -5,15 +5,15 @@ sealed class BottomBarScreen(
     val title: String,
     val icon: Int
 ) {
-    object Timer: BottomBarScreen(
-        route = "timer",
-        title = "Timer",
-        icon = R.drawable.ic_timer
-    )
     object Saved: BottomBarScreen(
         route = "saved",
         title = "Saved",
         icon = R.drawable.ic_saved
+    )
+    object Timer: BottomBarScreen(
+        route = "timer",
+        title = "Timer",
+        icon = R.drawable.ic_timer
     )
     object Create: BottomBarScreen(
         route = "create/{tag}",

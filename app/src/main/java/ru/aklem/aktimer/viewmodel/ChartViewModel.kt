@@ -13,7 +13,7 @@ import ru.aklem.aktimer.R
 import ru.aklem.aktimer.data.Chart
 import ru.aklem.aktimer.data.ChartDatabase
 import ru.aklem.aktimer.data.ChartRepository
-import ru.aklem.aktimer.misc.ChartPeriods
+import ru.aklem.aktimer.utils.ChartPeriods
 
 @InternalCoroutinesApi
 class ChartViewModel(application: Application) : AndroidViewModel(application) {

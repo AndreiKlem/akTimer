@@ -14,13 +14,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
@@ -30,8 +28,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.InternalCoroutinesApi
 import ru.aklem.aktimer.R
-import ru.aklem.aktimer.misc.AppSettings
-import ru.aklem.aktimer.misc.Period
+import ru.aklem.aktimer.utils.AppSettings
+import ru.aklem.aktimer.utils.Period
 import ru.aklem.aktimer.viewmodel.ChartViewModel
 import ru.aklem.aktimer.viewmodel.SettingsViewModel
 import ru.aklem.aktimer.viewmodel.TimerViewModel
@@ -51,6 +49,7 @@ fun TimerScreen(
     val progressStartTime = timerViewModel.progressStartTime
     val title = chartViewModel.selectedChart?.title
     val settings = settingsViewModel.appSettings.collectAsState(initial = AppSettings())
+    var timerSelected by remember { mutableStateOf(false) }
 
     LaunchedEffect(settings) {
         timerViewModel.onRingtoneSet(settings.value.userSound)
@@ -62,7 +61,8 @@ fun TimerScreen(
                 onStartPause = timerViewModel::toggleStartPause,
                 onStop = timerViewModel::stop,
                 timerValue = timerValue,
-                isRunning = isRunning
+                isRunning = isRunning,
+                timerSelected = timerSelected
             )
         }
         Column(
@@ -72,6 +72,7 @@ fun TimerScreen(
             horizontalAlignment = CenterHorizontally
         ) {
             title?.let {
+                timerSelected = true
                 if (settings.value.showTitle) {
                     Text(
                         text = it,
@@ -117,10 +118,11 @@ fun Timer(
     onStartPause: () -> Unit,
     onStop: () -> Unit,
     timerValue: Int,
-    isRunning: Boolean
+    isRunning: Boolean,
+    timerSelected: Boolean
 ) {
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().alpha(if (timerSelected) 1f else 0.38f),
         horizontalAlignment = CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {

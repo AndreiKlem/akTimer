@@ -8,7 +8,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
-import ru.aklem.aktimer.misc.AppSettings
+import ru.aklem.aktimer.utils.AppSettings
 import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton

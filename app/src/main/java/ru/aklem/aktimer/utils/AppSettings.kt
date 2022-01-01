@@ -1,4 +1,4 @@
-package ru.aklem.aktimer.misc
+package ru.aklem.aktimer.utils
 
 data class AppSettings(
     val showTitle: Boolean = true,

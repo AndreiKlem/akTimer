@@ -5,17 +5,20 @@ import android.content.res.Configuration
 import android.util.Log
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
@@ -24,6 +27,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -57,16 +61,33 @@ fun SavedScreen(
         }
     }) {
         if (charts.isNullOrEmpty()) {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = stringResource(id = R.string.no_timers),
-                    style = TextStyle(fontSize = 20.sp),
-                    textAlign = TextAlign.Center
+            val infiniteTransition = rememberInfiniteTransition()
+            val bottomPadding by infiniteTransition.animateValue(
+                initialValue = 32.dp,
+                targetValue = 16.dp,
+                typeConverter = Dp.VectorConverter,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(1000),
+                    repeatMode = RepeatMode.Reverse
                 )
+            )
+            Box(modifier = Modifier.fillMaxSize()) {
+                Box(modifier = Modifier.align(alignment = Alignment.Center)) {
+                    Text(
+                        text = stringResource(id = R.string.no_timers),
+                        style = TextStyle(fontSize = 20.sp)
+                    )
+                }
+                Box(
+                    modifier = Modifier
+                        .align(alignment = Alignment.BottomEnd)
+                        .padding(bottom = bottomPadding, end = 180.dp)
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_arrow_down),
+                        contentDescription = "Arrow down"
+                    )
+                }
                 // Several timers for testing purposes
                 /* Button(
                     modifier = Modifier.padding(top = 32.dp),
@@ -141,29 +162,80 @@ fun ChartCard(
     onEditChart: (Chart) -> Unit,
     onDeleteChart: (Chart) -> Unit
 ) {
-    var showFooter by remember { mutableStateOf(false) }
     val snackBarMessage = stringResource(id = R.string.timer_deleted)
     val snackBarActionLabel = stringResource(id = R.string.undo)
+    var expanded by remember { mutableStateOf(false) }
     Card(
         modifier = Modifier
-            .padding(horizontal = 4.dp, vertical = 4.dp)
+            .padding(horizontal = 8.dp, vertical = 4.dp)
             .fillMaxWidth()
             .animateContentSize(animationSpec = tween(400))
             .clickable {
-                showFooter = !showFooter
+                stopTimerOnChartSelected()
+                setTimerPeriods(chart)
+                onSelectChart(chart)
+                navController.navigate("timer")
             }
     ) {
         Column(modifier = Modifier.padding(8.dp)) {
-            Text(
-                modifier = Modifier.align(Alignment.CenterHorizontally),
-                text = chart.title,
-                overflow = TextOverflow.Ellipsis,
-                maxLines = 1,
-                style = TextStyle(
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Thin
+            Row(modifier = Modifier.padding(bottom = 8.dp)) {
+                Text(
+                    modifier = Modifier.weight(1f),
+                    text = chart.title,
+                    textAlign = TextAlign.Center,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+                    style = TextStyle(
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Thin
+                    )
                 )
-            )
+                Box {
+                    Image(
+                        imageVector = Icons.Filled.MoreVert,
+                        contentDescription = stringResource(id = R.string.settings),
+                        colorFilter = ColorFilter.tint(color = MaterialTheme.colors.secondary),
+                        modifier = Modifier.clickable {
+                            expanded = true
+                        }
+                    )
+                    DropdownMenu(
+                        modifier = Modifier.padding(horizontal = 8.dp),
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }) {
+                        Text(
+                            text = stringResource(id = R.string.edit),
+                            color = MaterialTheme.colors.secondary,
+                            modifier = Modifier.clickable {
+                                onEditChart(chart)
+                                navController.navigate(route = "create/edit")
+                            }
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = stringResource(id = R.string.delete),
+                            color = MaterialTheme.colors.secondary,
+                            modifier = Modifier.clickable {
+                                onDeleteChart(chart)
+                                coroutineScope.launch {
+                                    val snackBarResult =
+                                        scaffoldState.snackbarHostState.showSnackbar(
+                                            message = snackBarMessage,
+                                            actionLabel = snackBarActionLabel
+                                        )
+                                    when (snackBarResult) {
+                                        SnackbarResult.Dismissed -> Log.d(TAG, "SnackBar dismissed")
+                                        SnackbarResult.ActionPerformed -> {
+                                            onRestoreChart(chart)
+                                        }
+                                    }
+                                }
+                            }
+                        )
+                    }
+                }
+            }
+
             if (chart.preparationTime > 0) {
                 GetPeriodDescription(
                     header = chart.headerPreparation,
@@ -176,7 +248,10 @@ fun ChartCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 if (chart.repeat > 1) {
-                    Text(modifier = Modifier.padding(end = 4.dp), text = "${chart.repeat}X ")
+                    Text(
+                        modifier = Modifier.padding(end = 4.dp),
+                        text = "${chart.repeat}X "
+                    )
                     if (chart.restTime > 0) {
                         Image(
                             painter = painterResource(id = R.drawable.ic_curly_brace),
@@ -198,50 +273,6 @@ fun ChartCard(
                             case = chart.playRestSound
                         )
                     }
-                }
-            }
-            if (showFooter) {
-                Spacer(modifier = Modifier.height(8.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    Text(
-                        text = stringResource(id = R.string.delete),
-                        color = MaterialTheme.colors.secondary,
-                        modifier = Modifier.clickable {
-                            onDeleteChart(chart)
-                            coroutineScope.launch {
-                                val snackBarResult =
-                                    scaffoldState.snackbarHostState.showSnackbar(
-                                        message = snackBarMessage,
-                                        actionLabel = snackBarActionLabel
-                                    )
-                                when (snackBarResult) {
-                                    SnackbarResult.Dismissed -> Log.d(TAG, "SnackBar dismissed")
-                                    SnackbarResult.ActionPerformed -> {
-                                        onRestoreChart(chart)
-                                    }
-                                }
-                            }
-                        })
-                    Text(
-                        text = stringResource(id = R.string.edit),
-                        color = MaterialTheme.colors.secondary,
-                        modifier = Modifier.clickable {
-                            onEditChart(chart)
-                            navController.navigate(route = "create/edit")
-                        }
-                    )
-                    Text(
-                        text = stringResource(id = R.string.select),
-                        color = MaterialTheme.colors.secondary,
-                        modifier = Modifier.clickable {
-                            stopTimerOnChartSelected()
-                            setTimerPeriods(chart)
-                            onSelectChart(chart)
-                            navController.navigate("timer")
-                        })
                 }
             }
         }

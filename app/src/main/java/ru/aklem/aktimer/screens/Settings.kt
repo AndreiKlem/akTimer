@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import kotlinx.coroutines.Job
 import ru.aklem.aktimer.R
-import ru.aklem.aktimer.misc.AppSettings
+import ru.aklem.aktimer.utils.AppSettings
 import ru.aklem.aktimer.viewmodel.SettingsViewModel
 
 @Composable

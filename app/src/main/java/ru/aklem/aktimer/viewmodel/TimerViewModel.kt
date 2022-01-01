@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import ru.aklem.aktimer.R
 import ru.aklem.aktimer.data.Chart
-import ru.aklem.aktimer.misc.Period
+import ru.aklem.aktimer.utils.Period
 import javax.inject.Inject
 
 @HiltViewModel

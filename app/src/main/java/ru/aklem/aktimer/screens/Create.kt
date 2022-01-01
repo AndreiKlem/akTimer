@@ -40,9 +40,9 @@ import androidx.compose.ui.window.Popup
 import androidx.navigation.NavController
 import kotlinx.coroutines.flow.StateFlow
 import ru.aklem.aktimer.R
-import ru.aklem.aktimer.misc.AppSettings
-import ru.aklem.aktimer.misc.ChartPeriods
-import ru.aklem.aktimer.misc.ChartPeriods.*
+import ru.aklem.aktimer.utils.AppSettings
+import ru.aklem.aktimer.utils.ChartPeriods
+import ru.aklem.aktimer.utils.ChartPeriods.*
 import ru.aklem.aktimer.viewmodel.SettingsViewModel
 
 @ExperimentalComposeUiApi

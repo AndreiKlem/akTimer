@@ -41,8 +41,8 @@ fun MainScreen() {
 @Composable
 fun BottomBar(navController: NavHostController) {
     val screens = listOf(
-        BottomBarScreen.Timer,
         BottomBarScreen.Saved,
+        BottomBarScreen.Timer,
         BottomBarScreen.Create,
         BottomBarScreen.Settings
     )
@@ -70,8 +70,8 @@ fun RowScope.AddItem(
         label = {
             Text(
                 text = when (screen.title) {
-                    "Timer" -> stringResource(id = R.string.timer)
                     "Saved" -> stringResource(id = R.string.saved)
+                    "Timer" -> stringResource(id = R.string.timer)
                     "Create" -> stringResource(id = R.string.create)
                     "Settings" -> stringResource(id = R.string.settings)
                     else -> "Tile error"

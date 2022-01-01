@@ -1,4 +1,4 @@
-package ru.aklem.aktimer.misc
+package ru.aklem.aktimer.utils
 
 enum class ChartPeriods {
     PREPARATION, ACTION, REST
