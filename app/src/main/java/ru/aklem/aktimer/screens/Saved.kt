@@ -36,6 +36,7 @@ import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.launch
 import ru.aklem.aktimer.R
 import ru.aklem.aktimer.data.Chart
+import ru.aklem.aktimer.utils.getTestCharts
 import ru.aklem.aktimer.viewmodel.ChartViewModel
 import ru.aklem.aktimer.viewmodel.TimerViewModel
 
@@ -48,6 +49,8 @@ fun SavedScreen(
     timerViewModel: TimerViewModel,
     chartViewModel: ChartViewModel,
 ) {
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp
     val charts = chartViewModel.charts.observeAsState().value
     val scaffoldState = rememberScaffoldState()
     val coroutineScope = rememberCoroutineScope()
@@ -77,24 +80,24 @@ fun SavedScreen(
                         text = stringResource(id = R.string.no_timers),
                         style = TextStyle(fontSize = 20.sp)
                     )
+                    // Several timers for testing purposes
+                    /*Button(
+                       modifier = Modifier.padding(top = 32.dp),
+                       onClick = { chartViewModel.insertTestChartsToDatabase(getTestCharts()) }
+                   ) {
+                       Text(text = stringResource(id = R.string.insert_timers))
+                   }*/
                 }
                 Box(
                     modifier = Modifier
                         .align(alignment = Alignment.BottomEnd)
-                        .padding(bottom = bottomPadding, end = 180.dp)
+                        .padding(bottom = bottomPadding, end = (screenWidth / 3.1).dp)
                 ) {
                     Image(
                         painter = painterResource(id = R.drawable.ic_arrow_down),
                         contentDescription = "Arrow down"
                     )
                 }
-                // Several timers for testing purposes
-                /* Button(
-                    modifier = Modifier.padding(top = 32.dp),
-                    onClick = { chartViewModel.insertTestChartsToDatabase(getTestCharts()) }
-                ) {
-                    Text(text = stringResource(id = R.string.insert_timers))
-                }*/
             }
         } else {
             if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT) {
